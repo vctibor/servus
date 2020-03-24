@@ -40,25 +40,15 @@ pub fn get_users(conn: &PgConnection) -> Vec<User> {
 }
 
 /*
-pub fn get_users(conn: &PgConnection)
-    -> Result<Vec<User>, diesel::result::Error>
-{
-    let results = users
-        .filter(name.eq("Aa"))
-        .limit(5)
-        .load::<User>(&connection)
-        .expect("Error loading posts");
-
-    Ok(vec!())
-}
-*/
-
-/*
-pub fn get_user(id: Uuid) -> User {
+pub fn get_user(id: Uuid, conn: &PgConnection) -> User {
 
 }
 
-pub fn delete_user(id: Uuid) {
+pub fn update_user(user: User, conn: &PgConnection) -> User {
+
+}
+
+pub fn delete_user(id: Uuid, conn: &PgConnection) {
 
 }
 */
