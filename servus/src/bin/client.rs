@@ -1,21 +1,12 @@
-/*
-use servus::entity::User;
-
-fn main() {
-    println!("This is client.");
-    let user = User { id: None, name: "malky", email: Some("vladimir.malky@gmail.com") };
-    println!("{:?}", user);
-}
-*/
-
 use servus::persistence::*;
 
-use actix_web::{web, App, Error, HttpResponse, HttpServer};
+use actix_web::{web, middleware, App, Error, HttpResponse, HttpServer};
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
 use std::env;
 use uuid::Uuid;
+use actix_files as fs;
 
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
@@ -74,6 +65,9 @@ async fn delete_user(user_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
+    std::env::set_var("RUST_LOG", "actix_web=info");
+    env_logger::init();
+
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")
@@ -91,8 +85,10 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(middleware::Logger::default())
             .data(pool.clone())
             //.data(web::JsonConfig::default().limit(4096))
+            .service(fs::Files::new("/", "./static/").index_file("index.html"))
             .service(web::resource("/api/user/list").route(web::get().to(list_users)))
             .service(web::resource("/api/user/get/{user_id}").route(web::get().to(get_user)))
             .service(web::resource("/api/user/create").route(web::post().to(create_user)))
