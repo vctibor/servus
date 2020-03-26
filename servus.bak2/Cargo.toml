@@ -5,6 +5,17 @@ authors = ["Vladimír Ctibor <vladimir.ctibor@gmail.com>"]
 edition = "2018"
 description = "Server for running periodic tasks."
 
+[[bin]]
+# Process to read info from DB and actually run tasks.
+name = "daemon"
+path = "src/daemon.rs"
+
+
+[[bin]]
+# Web application to manage configuration.
+name = "client"
+path = "src/main.rs"
+
 [dependencies]
 actix-web = "2.0"
 actix-rt = "1.0"

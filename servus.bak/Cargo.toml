@@ -1,0 +1,41 @@
+[package]
+name = "servus"
+version = "0.1.0"
+authors = ["Vladimír Ctibor <vladimir.ctibor@gmail.com>"]
+edition = "2018"
+description = "Server for running periodic tasks."
+license = "GPL-3.0-only"
+
+[dependencies]
+
+# Primitives
+uuid = { version = "0.6.0", features = ["serde"] }
+
+# Execute ssh commands.
+ssh2 = "0.6"
+
+# Mail sending.
+lettre = "0.9"
+
+# Cron.
+job_scheduler = "1.1"
+
+# Async.
+tokio = { version = "0.2", features = ["full"] }
+
+# Web server.
+warp = "0.2"
+handlebars = "3.0"
+gotham = "0.4"
+gotham_derive = "0.4"
+hyper = "0.13"
+mime = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_derive = "1.0"
+
+# ORM and database migration
+diesel = { version = "1.0.0", features = ["postgres", "uuid"] }
+dotenv = "0.9.0"

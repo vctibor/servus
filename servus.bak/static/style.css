@@ -1,0 +1,55 @@
+.sidepanel {
+    color: white;
+    background-color: black;
+    width: 20vw;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+h1 {
+    text-transform: uppercase;
+    padding-left: 3vw;
+    font-size: 3em;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    padding-left: 3vw;
+}
+
+li {
+    padding-top: 1vh;
+    font-size: 2em;
+}
+
+a:link {
+    text-decoration: none;
+    color: white;
+}
+
+a:visited {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    text-decoration: none;
+    color: white;
+}
+
+a:active {
+    text-decoration: none;
+    color: white;
+}
