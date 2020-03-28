@@ -88,12 +88,12 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .data(pool.clone())
             //.data(web::JsonConfig::default().limit(4096))
-            .service(fs::Files::new("/", "./static/").index_file("index.html"))
             .service(web::resource("/api/user/list").route(web::get().to(list_users)))
             .service(web::resource("/api/user/get/{user_id}").route(web::get().to(get_user)))
             .service(web::resource("/api/user/create").route(web::post().to(create_user)))
             .service(web::resource("/api/user/update/{user_id}").route(web::post().to(update_user)))
             .service(web::resource("/api/user/delete/{user_id}").route(web::post().to(delete_user)))
+            .service(fs::Files::new("/", "./static/").index_file("index.html"))
     })
         .bind(&bind)?
         .run()
