@@ -1,16 +1,37 @@
-.sidepanel {
-    color: white;
-    background-color: black;
-    width: 20vw;
+.block {
+    float: left;
     height: 100%;
-    position: fixed;
-    left: 0;
-    top: 0;
+}
+
+#sidepanel {
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+
+    width: 20em;
+    font-family: "Lucida Console", Monaco, monospace;
+    background-color: black;
+    color: white;
+    font-variant: small-caps;
+
+    padding-left: 3em;
+}
+
+#main {
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: green;
+    */
+
+    padding-left: 5em;
+    flex-grow: 100;
 }
 
 h1 {
     text-transform: uppercase;
-    padding-left: 3vw;
     font-size: 3em;
     padding-bottom: 0px;
     margin-bottom: 0px;
@@ -18,15 +39,23 @@ h1 {
 
 html, body {
     height: 100%;
-    margin: 0;
-    font-family: "Lucida Console", Monaco, monospace;
+
+    /*
+    display: flex;
+    align-items: stretch;
+    */
+
+    display: flex;
+    
+    margin: 0px;
+    padding: 0px;
+    
 }
 
 ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    padding-left: 3vw;
 }
 
 li {
@@ -52,4 +81,10 @@ a:hover {
 a:active {
     text-decoration: none;
     color: white;
+}
+
+hr {
+    border: 0;
+    border-bottom: 1px dashed #ccc;
+    background: #999;
 }

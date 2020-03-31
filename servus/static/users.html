@@ -1,0 +1,22 @@
+<div ng-app="myApp" ng-controller="UsersController">
+
+    <h1>Users</h1>
+
+    <hr/>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        <tr ng-repeat="user in users">
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+        </tr>
+    </table>
+
+    <hr/>
+
+</div>

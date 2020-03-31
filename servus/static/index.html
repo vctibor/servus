@@ -2,48 +2,56 @@
 <html>
 
 <head>
+    <base href="/">
     <title>Servus</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular-route.min.js"></script>
+    
     <script src="/js/site.js"></script>
 </head>
 
-<body>
+<!-- ➤ -->
 
-    <!--➤-->
+<body ng-app="myApp" ng-controller="MainController">
 
-    <div id="sidepanel" class="sidepanel">
+    <div id="sidepanel" class="block">
 
         <h1>Servus</h1>
 
         <ul>
             <li>
-                <div onclick="selectedJobs()" style="cursor: pointer;">
-                    <span id="jobs_pointer" style="display: none;">➤ </span>Jobs
-                </div>
+                <a href="jobs/">
+                    <span>{{ active_page === "jobs" ? "➤" : "" }}</span>
+                    Jobs
+                </a>
             </li>
             <li>
-                <div onclick="selectedMachines()" style="cursor: pointer;">
-                    <span id="machines_pointer" style="display: none;">➤ </span>Machines
-                </div>
+                <a href="machines/">
+                    <span>{{ active_page === "machines" ? "➤" : "" }}</span>
+                    Machines
+                </a>
             </li>
             <li>
-                <div onclick="selectedUsers()" style="cursor: pointer;">
-                    <span id="users_pointer" style="display: none;">➤ </span>Users
-                </div>
+                <a href="users/">
+                    <span>{{ active_page === "users" ? "➤" : "" }}</span>
+                    Users
+                </a>
             </li>
             <li>
-                <div onclick="selectedLog()" style="cursor: pointer;">
-                    <span id="log_pointer" style="display: none;">➤ </span>Log
-                </div>
+                <a href="log/">
+                    <span>{{ active_page === "log" ? "➤" : "" }}</span>
+                    Log
+                </a>
             </li>
         </ul>
     </div>
 
-    <div id="main">
-
+    <div id="main" class="block">
+        <div ng-view></div>
     </div>
+    
 </body>
-
 </html>
