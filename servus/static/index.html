@@ -7,9 +7,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular-route.min.js"></script>
-    
     <script src="/js/site.js"></script>
 </head>
 
@@ -24,25 +24,25 @@
         <ul>
             <li>
                 <a href="jobs/">
-                    <span>{{ active_page === "jobs" ? "➤" : "" }}</span>
+                    <span id="jobs_pointer" style="display: none;">➤ </span>
                     Jobs
                 </a>
             </li>
             <li>
                 <a href="machines/">
-                    <span>{{ active_page === "machines" ? "➤" : "" }}</span>
+                    <span id="machines_pointer" style="display: none;">➤ </span>
                     Machines
                 </a>
             </li>
             <li>
                 <a href="users/">
-                    <span>{{ active_page === "users" ? "➤" : "" }}</span>
+                    <span id="users_pointer" style="display: none;">➤ </span>
                     Users
                 </a>
             </li>
             <li>
                 <a href="log/">
-                    <span>{{ active_page === "log" ? "➤" : "" }}</span>
+                    <span id="log_pointer" style="display: none;">➤ </span>
                     Log
                 </a>
             </li>

@@ -1,55 +1,35 @@
+html, body {
+    height: 100%;
+    display: flex;
+    margin: 0px;
+    padding: 0px;
+    
+    font-family: "Lucida Console", Monaco, monospace;
+    font-variant: small-caps;
+}
+
 .block {
     float: left;
     height: 100%;
 }
 
 #sidepanel {
-    /*
-    border-style: solid;
-    border-width: 2px;
-    border-color: red;
-    */
-
     width: 20em;
-    font-family: "Lucida Console", Monaco, monospace;
     background-color: black;
     color: white;
-    font-variant: small-caps;
-
     padding-left: 3em;
 }
 
 #main {
-    /*
-    border-style: solid;
-    border-width: 2px;
-    border-color: green;
-    */
-
     padding-left: 5em;
     flex-grow: 100;
 }
 
-h1 {
+h1, h2 {
     text-transform: uppercase;
     font-size: 3em;
     padding-bottom: 0px;
     margin-bottom: 0px;
-}
-
-html, body {
-    height: 100%;
-
-    /*
-    display: flex;
-    align-items: stretch;
-    */
-
-    display: flex;
-    
-    margin: 0px;
-    padding: 0px;
-    
 }
 
 ul {
@@ -61,6 +41,50 @@ ul {
 li {
     padding-top: 1vh;
     font-size: 2em;
+}
+
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+td {
+    min-width: 10em;
+    text-align: center;
+
+    border-width: 0px;
+}
+
+.table_row:hover {
+    background-color: #eee;
+}
+
+.table_row_odd {
+    background-color: #fafafa;
+}
+
+.add_btn {
+    margin-top: 2em;
+
+    border-radius: 5px;
+    text-align: center;
+
+    background-color: #46e041;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-variant: small-caps;
+    font-weight: bolder;
+
+    border-style: none;
+    padding: 1em;
+
+}
+
+.delete_btn {
+    color: red;
+    border-style: none;
+    background-color: transparent;
+    cursor: pointer;
 }
 
 a:link {
@@ -83,8 +107,29 @@ a:active {
     color: white;
 }
 
+/*
 hr {
     border: 0;
     border-bottom: 1px dashed #ccc;
     background: #999;
+
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+*/
+
+hr {
+    border: 0;
+    color: transparent;
+
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+
+:focus {
+    outline: none;
+}
+
+::-moz-focus-inner {
+    border: 0;
 }
