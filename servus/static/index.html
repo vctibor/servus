@@ -6,11 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link rel="stylesheet" href="/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <!--<script src="/js/site.js"></script>-->
+    <script src="/js/site.js"></script>
 </head>
 
 <body>
+
+    <!--➤-->
 
     <div id="sidepanel" class="sidepanel">
 
@@ -18,67 +19,31 @@
 
         <ul>
             <li>
-                <div onclick="display('jobs')" style="cursor: pointer;">
-                    <span v-if="page === 'jobs'">➤</span> Jobs
+                <div onclick="selectedJobs()" style="cursor: pointer;">
+                    <span id="jobs_pointer" style="display: none;">➤ </span>Jobs
                 </div>
             </li>
             <li>
-                <div onclick="display('machines')" style="cursor: pointer;">
-                    <span v-if="page === 'machines'">➤</span> Machines
+                <div onclick="selectedMachines()" style="cursor: pointer;">
+                    <span id="machines_pointer" style="display: none;">➤ </span>Machines
                 </div>
             </li>
             <li>
-                <div onclick="display('users')" style="cursor: pointer;">
-                    <span v-if="page === 'users'">➤</span> Users
+                <div onclick="selectedUsers()" style="cursor: pointer;">
+                    <span id="users_pointer" style="display: none;">➤ </span>Users
                 </div>
             </li>
             <li>
-                <div onclick="display('log')" style="cursor: pointer;">
-                    <span v-if="page === 'log'">➤</span> Log
+                <div onclick="selectedLog()" style="cursor: pointer;">
+                    <span id="log_pointer" style="display: none;">➤ </span>Log
                 </div>
             </li>
         </ul>
     </div>
 
-    <div class="main">
+    <div id="main">
 
     </div>
-
-    <script>
-        // we have to use 'var' here to have non-lexical scope
-
-        var app = new Vue({
-            el: '#sidepanel',
-            data: {
-                page: 'jobs'
-            }
-        });
-
-        function page_jobs() {
-            app.page = 'jobs';
-        }
-
-        function page_machines() {
-            app.page = 'machines';
-        }
-
-        function page_users() {
-            app.page = 'users';
-        }
-
-        function page_log() {
-            app.page = 'log';
-        }
-
-        function httpGet(url) {
-            var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open("GET", url, false); // false for synchronous request
-            xmlHttp.send(null);
-            return xmlHttp.responseText;
-        }
-        
-    </script>
-
 </body>
 
 </html>
