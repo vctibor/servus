@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use crate::schema::users;
+use crate::schema::users::dsl::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
@@ -20,9 +21,6 @@ pub struct NewUser {
 pub fn add_user(user: NewUser, conn: &PgConnection)
                 -> Result<User, diesel::result::Error>
 {
-    use crate::schema::users::dsl::*;
-    //use crate::diesel::RunQueryDsl;
-
     let new_user = User {
         id: Uuid::new_v4(),
         name: user.name,
@@ -34,30 +32,29 @@ pub fn add_user(user: NewUser, conn: &PgConnection)
     Ok(new_user)
 }
 
-pub fn get_users(conn: &PgConnection) -> Vec<User> {
-    use crate::schema::users::dsl::*;
-    // use crate::diesel::RunQueryDsl;
-    users.load::<User>(conn).expect("Error loading users")
+pub fn get_users(conn: &PgConnection)
+                 -> Result<Vec<User>, diesel::result::Error>
+{
+    users.load::<User>(conn)
 }
 
-pub fn get_user(uid: Uuid, conn: &PgConnection) -> Option<User> {
-    use crate::schema::users::dsl::*;
-
-    let user = users
+pub fn get_user(uid: Uuid, conn: &PgConnection)
+                -> Result<Option<User>, diesel::result::Error>
+{
+    users
         .filter(id.eq(uid))
         .first::<User>(conn)
         .optional()
-        .unwrap();
-
-    user
 }
 
-pub fn update_user(user: User, conn: &PgConnection) {
-    diesel::update(users::table).set(&user).execute(conn).unwrap();
+pub fn update_user(user: User, conn: &PgConnection)
+                   -> Result<usize, diesel::result::Error>
+{
+    diesel::update(users::table).set(&user).execute(conn)
 }
 
-pub fn delete_user(uid: Uuid, conn: &PgConnection) {
-    use crate::schema::users::dsl::*;
-
-    diesel::delete(users.filter(id.eq(uid))).execute(conn).unwrap();
+pub fn delete_user(uid: Uuid, conn: &PgConnection)
+                   -> Result<usize, diesel::result::Error>
+{
+    diesel::delete(users.filter(id.eq(uid))).execute(conn)
 }

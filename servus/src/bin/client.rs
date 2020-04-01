@@ -14,9 +14,21 @@ async fn list_users(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
     println!("List users.");
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    let users = user::get_users(&conn);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    let users = web::block(move || user::get_users(&conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
     println!("{:?}", users);
+
     Ok(HttpResponse::Ok().json(users))
 }
 
@@ -24,32 +36,61 @@ async fn get_user(user_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                   -> Result<HttpResponse, Error>
 {
     println!("Get user.");
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    let user = user::get_user(user_uid.into_inner(), &conn);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+    
+    let user = web::block(move || user::get_user(user_uid.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
     Ok(HttpResponse::Ok().json(user))
 }
 
 async fn create_user(user: web::Json<user::NewUser>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Create user.");
-    println!("{:?}", user);
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    let user = user::add_user(user.into_inner(), &conn).unwrap();
+    println!("Create user {:?}", user);
+    
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    let user = user::add_user(user.into_inner(), &conn)
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
     Ok(HttpResponse::Ok().json(user))
 }
 
 async fn update_user(user_uid: web::Path<Uuid>, user: web::Json<user::NewUser>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Update user.");
-    println!("{:?}", user);
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    println!("Update user {:?}", user);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
 
     let user = user.into_inner();
     let user = user::User { id: user_uid.into_inner(), name: user.name, email: user.email };
 
-    user::update_user(user, &conn);
+    web::block(move || user::update_user(user, &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -57,8 +98,19 @@ async fn delete_user(user_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
     println!("Delete user.");
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    user::delete_user(user_uid.into_inner(), &conn);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || user::delete_user(user_uid.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+    
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -87,7 +139,6 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(middleware::Logger::default())
             .data(pool.clone())
-            //.data(web::JsonConfig::default().limit(4096))
             .service(web::resource("/api/user/list").route(web::get().to(list_users)))
             .service(web::resource("/api/user/get/{user_id}").route(web::get().to(get_user)))
             .service(web::resource("/api/user/create").route(web::post().to(create_user)))
