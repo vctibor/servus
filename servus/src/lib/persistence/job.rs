@@ -1,11 +1,6 @@
-/*
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use super::user::User;
-use super::machine::Machine;
 use crate::entity::Job as JobEntity;
-use crate::entity::User as UserEntity;
-use crate::entity::Machine as MachineEntity;
 use crate::schema::jobs;
 use crate::schema::jobs::dsl::*;
 use diesel::pg::PgConnection;
@@ -40,51 +35,66 @@ struct NewJob {
 pub fn add_job(job: JobEntity, conn: &PgConnection)
                 -> Result<JobEntity, diesel::result::Error>
 {
-    let new_job = Job {
+    let job = Job {
         id: Uuid::new_v4(),
         name: job.name,
         code: job.code,
         description: job.description,
         schedule: job.schedule,
-        target: job.target,
-        owner: job.owner,
+
+        // TODO: remove unwrap - this is rather unsafe because we basically depend on client code
+        target: job.target.id.unwrap(),
+        owner: job.owner.id.unwrap(),
         last_update: job.last_update,
         send_email: job.send_email
     };
 
     diesel::insert_into(jobs)
-        .values(&new_job)
+        .values(&job)
         .execute(conn)?;
 
+    let owner_entity = super::user::get_user(job.owner, &conn)?;
+
+    let target_entity = super::machine::get_machine(job.target, &conn)?;
+
     Ok(JobEntity {
-        id: Some(new_job.id),
-        name: new_job.name,
-        code: job.code,
-        description: job.description,
-        schedule: job.schedule,
-        target: job.target,
-        owner: job.owner,
+        id: Some(job.id),
+        name: job.name,
+        code: job.code.to_owned(),
+        description: job.description.to_owned(),
+        schedule: job.schedule.to_owned(),
+
+        // TODO: remove unwrap - this is pretty safe because it's FK enforced by database
+        target: target_entity.unwrap(),
+        owner: owner_entity.unwrap(),
         last_update: job.last_update,
         send_email: job.send_email
     })
 }
 
 pub fn get_jobs(conn: &PgConnection)
-                 -> Result<Vec<JobEntity>, diesel::result::Error>
+                -> Result<Vec<JobEntity>, diesel::result::Error>
 {
     let job_table: Vec<Job> = jobs.load::<Job>(conn)?;
 
     let mut entities = Vec::with_capacity(job_table.len());
 
     for job in job_table.iter() {
+
+        let owner_entity = super::user::get_user(job.owner, &conn)?;
+
+        let target_entity = super::machine::get_machine(job.target, &conn)?;
+
         entities.push(JobEntity {
             id: Some(job.id),
             name: job.name.to_owned(),
-            code: job.code,
-            description: job.description,
-            schedule: job.schedule,
-            target: job.target,
-            owner: job.owner,
+            code: job.code.to_owned(),
+            description: job.description.to_owned(),
+            schedule: job.schedule.to_owned(),
+
+            // TODO: remove unwrap - this is pretty safe because it's FK enforced by database
+            target: target_entity.unwrap(),
+            owner: owner_entity.unwrap(),
             last_update: job.last_update,
             send_email: job.send_email
         });
@@ -102,17 +112,26 @@ pub fn get_job(uid: Uuid, conn: &PgConnection)
         .optional()?;
 
     match job {
-        Some(job) => Ok(Some(JobEntity {
-            id: Some(job.id),
-            name: job.name,
-            code: job.code,
-            description: job.description,
-            schedule: job.schedule,
-            target: job.target,
-            owner: job.owner,
-            last_update: job.last_update,
-            send_email: job.send_email
-        })),
+        Some(job) => {
+
+            let owner_entity = super::user::get_user(job.owner, &conn)?;
+
+            let target_entity = super::machine::get_machine(job.target, &conn)?;
+
+            Ok(Some(JobEntity {
+                id: Some(job.id),
+                name: job.name,
+                code: job.code,
+                description: job.description,
+                schedule: job.schedule,
+                
+                // TODO: remove unwrap - this is pretty safe because it's FK enforced by database
+                target: target_entity.unwrap(),
+                owner: owner_entity.unwrap(),
+                last_update: job.last_update,
+                send_email: job.send_email
+            }))
+        },
         None => Ok(None),
     }
 }
@@ -126,8 +145,10 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
         code: job.code,
         description: job.description,
         schedule: job.schedule,
-        target: job.target,
-        owner: job.owner,
+
+        // TODO: remove unwrap - this is rather unsafe because we basically depend on client code
+        target: job.target.id.unwrap(),
+        owner: job.owner.id.unwrap(),
         last_update: job.last_update,
         send_email: job.send_email
     };
@@ -140,5 +161,3 @@ pub fn delete_job(uid: Uuid, conn: &PgConnection)
 {
     diesel::delete(jobs.filter(id.eq(uid))).execute(conn)
 }
-*/
-

@@ -6,7 +6,7 @@ use crate::schema::machines::dsl::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset)]
+#[derive(Identifiable, Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset)]
 pub struct Machine {
     pub id: Uuid,
     pub name: String,
