@@ -1,26 +1,26 @@
 <div ng-app="myApp" ng-controller="UsersController">
 
     <h2>Users</h2>
+        
+    <button class="btn add_btn">Add user</button>
+
+    <button class="btn refresh_btn">Refresh</button>
+
+    <button class="btn save_btn">Save changes</button>
 
     <hr/>
 
     <table>
         <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Email</th>
             <th></th>
         </tr>
         <tr ng-repeat="user in users" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
-            <td>{{ user.id }}</td>
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td><button class="fa fa-times delete_btn"></button></td>
         </tr>
     </table>
-
-    <button class="add_btn">Add user</button>
-
-    <hr/>
 
 </div>

@@ -14,6 +14,10 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "jobs";
 
+    $http.get("/api/job/list")
+        .then(function (response) {
+            $scope.jobs = response.data;
+        });
 })
 
 .controller('MachinesController', function($scope, $routeParams, $http) {
@@ -24,6 +28,10 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "machines";
 
+    $http.get("/api/machine/list")
+        .then(function (response) {
+            $scope.machines = response.data;
+        });
 })
 
 .controller('UsersController', function($scope, $routeParams, $http) {

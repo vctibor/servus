@@ -47,6 +47,8 @@ li {
 table {
     border-collapse: collapse;
     border-spacing: 0;
+
+    width: 60vw;
 }
 
 td {
@@ -64,20 +66,41 @@ td {
     background-color: #fafafa;
 }
 
-.add_btn {
-    margin-top: 2em;
-
-    border-radius: 5px;
+.btn {
+    color: white;
+    width: 150px;
+    height: 30px;
+    
+    /*margin-top: 2em;*/
+    
     text-align: center;
-
-    background-color: #46e041;
+    vertical-align: middle;
+    
+    
     font-family: "Lucida Console", Monaco, monospace;
     font-variant: small-caps;
     font-weight: bolder;
-
+    
     border-style: none;
-    padding: 1em;
+    border-radius: 5px;
 
+    /*
+    padding: 1em;
+    padding-bottom: 2em;
+    */
+
+}
+
+.add_btn {
+    background-color: #46e041;
+}
+
+.refresh_btn {
+    background-color: #3399ff;
+}
+
+.save_btn {
+    background-color: #ffcc00;
 }
 
 .delete_btn {

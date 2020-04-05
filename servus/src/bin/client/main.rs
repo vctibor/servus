@@ -1,5 +1,6 @@
 mod user;
 mod machine;
+mod job;
 
 use actix_web::{web, middleware, App, HttpServer};
 use diesel::pg::PgConnection;
@@ -46,6 +47,12 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/api/machine/update/{machine_id}").route(web::post().to(machine::update_machine)))
             .service(web::resource("/api/machine/delete/{machine_id}").route(web::post().to(machine::delete_machine)))
             
+            .service(web::resource("/api/job/list").route(web::get().to(job::list_jobs)))
+            .service(web::resource("/api/job/get/{job_id}").route(web::get().to(job::get_job)))
+            .service(web::resource("/api/job/create").route(web::post().to(job::create_job)))
+            .service(web::resource("/api/job/update/{job_id}").route(web::post().to(job::update_job)))
+            .service(web::resource("/api/job/delete/{job_id}").route(web::post().to(job::delete_job)))
+
             .service(fs::Files::new("/", "./static/").index_file("index.html"))
     })
         .bind(&bind)?

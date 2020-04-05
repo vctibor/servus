@@ -1,2 +1,30 @@
 <h2>Machines</h2>
 
+<button class="btn add_btn">Add job</button>
+
+<button class="btn refresh_btn">Refresh</button>
+
+<button class="btn save_btn">Save changes</button>
+
+<hr/>
+
+<table>
+    <tr>
+        <!-- <th>ID</th> -->
+        <th>Name</th>
+        <th>Username</th>
+        <th>Address</th>
+        <th>Port</th>
+        <th></th>
+    </tr>
+    <tr ng-repeat="machine in machines" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
+        <!-- <td>{{ machine.id }}</td> -->
+        <td>{{ machine.name }}</td>
+        <td>{{ machine.username }}</td>
+        <td>{{ machine.url }}</td>
+        <td>{{ machine.port }}</td>
+        <td><button class="fa fa-times delete_btn"></button></td>
+    </tr>
+</table>
+
+<hr/>
