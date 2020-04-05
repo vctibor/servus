@@ -28,6 +28,9 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "machines";
 
+    $scope.machines = null;
+    $scope.serialized = JSON.stringify($scope.machines, null, 2);
+
     $http.get("/api/machine/list")
         .then(function (response) {
             $scope.machines = response.data;

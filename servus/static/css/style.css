@@ -43,7 +43,6 @@ li {
     font-size: 2em;
 }
 
-
 table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -58,6 +57,18 @@ td {
     border-width: 0px;
 }
 
+input {
+    background-color: transparent;
+    border-style: none;
+    text-align: center;
+
+    display: inline-block;
+    margin: 0 auto;
+
+    font-family: "Lucida Console", Monaco, monospace;
+    font-variant: small-caps;
+}
+
 .table_row:hover {
     background-color: #eee;
 }
@@ -70,12 +81,9 @@ td {
     color: white;
     width: 150px;
     height: 30px;
-    
-    /*margin-top: 2em;*/
-    
+        
     text-align: center;
     vertical-align: middle;
-    
     
     font-family: "Lucida Console", Monaco, monospace;
     font-variant: small-caps;
@@ -84,11 +92,9 @@ td {
     border-style: none;
     border-radius: 5px;
 
-    /*
-    padding: 1em;
-    padding-bottom: 2em;
-    */
+    box-shadow: 3px 3px #eee;
 
+    cursor: pointer;
 }
 
 .add_btn {

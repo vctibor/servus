@@ -1,10 +1,10 @@
 <h2>Jobs</h2>
 
-<button class="btn add_btn">Add job</button>
+<button class="btn add_btn"><span class="fa fa-plus"></span> Add job</button>
 
-<button class="btn refresh_btn">Refresh</button>
+<button class="btn refresh_btn"><span class="fa fa-repeat"></span> Refresh</button>
 
-<button class="btn save_btn">Save changes</button>
+<button class="btn save_btn"><span class="fa fa-check"></span> Save changes</button>
 
 <hr/>
 
@@ -18,13 +18,27 @@
         <th></th>
     </tr>
     <tr ng-repeat="job in jobs" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
-        <td>{{ job.name }}</td>
-        <td>{{ job.schedule }}</td>
-        <td>{{ job.target.name }}</td>
-        <td>{{ job.owner.name }}</td>
-        <td>{{ job.send_email }}</td>
+        <td>
+            <input ng-model="job.name">
+        </td>
+        <td>
+            <input ng-model="job.schedule">
+        </td>
+        <td>
+            <input ng-model="job.target.name">
+        </td>
+        <td>
+            <input ng-model="job.owner.name">
+        </td>
+        <td>
+            <input type="checkbox" ng-model="job.send_email">
+        </td>
         <td><button class="fa fa-times delete_btn"></button></td>
     </tr>
 </table>
+
+<div style="max-width: 50vw;">
+    {{ jobs }}
+</div>
 
 <hr/>
