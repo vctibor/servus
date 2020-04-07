@@ -4,3 +4,5 @@ servus.bak/target/**
 servus.bak2/target/**
 
 .idea/**
+
+.env
