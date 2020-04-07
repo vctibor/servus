@@ -31,7 +31,8 @@ pub struct Job {
     pub target: Machine,
     pub owner: User,
     pub last_update: NaiveDateTime,
-    pub send_email: bool
+    pub send_email: bool,
+    pub last_status: Option<bool>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

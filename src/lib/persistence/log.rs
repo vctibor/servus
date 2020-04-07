@@ -19,11 +19,32 @@ pub struct Log {
     pub job: Uuid
 }
 
-/*
-pub fn write_log(entry: LogEntry, conn: &PgConnection) {
 
+pub fn write_log(entry: LogEntry, conn: &PgConnection) 
+    -> Result<LogEntry, AnyError>
+{
+    let new_entry = Log {
+        id: Uuid::new_v4(),
+        success: entry.success,
+        time: entry.time,
+        message: entry.message,
+        job: entry.job
+    };
+
+    diesel::insert_into(tx_log)
+        .values(&new_entry)
+        .execute(conn)?;
+
+    let entry = LogEntry {
+        id: Some(new_entry.id),
+        success: new_entry.success,
+        time: new_entry.time,
+        message: new_entry.message,
+        job: new_entry.job
+    };
+
+    Ok(entry)
 }
-*/
 
 /// Get log entries specific for given job_id,
 /// allows paging with offset and size.

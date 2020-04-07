@@ -51,10 +51,12 @@ table {
 }
 
 td {
-    min-width: 10em;
     text-align: center;
-
     border-width: 0px;
+}
+
+.basic_td {
+    min-width: 10em;
 }
 
 input {

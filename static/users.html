@@ -17,8 +17,8 @@
             <th></th>
         </tr>
         <tr ng-repeat="user in users" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
+            <td class="basic_td">{{ user.name }}</td>
+            <td class="basic_td">{{ user.email }}</td>
             <td><button class="fa fa-times delete_btn"></button></td>
         </tr>
     </table>

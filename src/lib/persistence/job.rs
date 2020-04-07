@@ -73,7 +73,8 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
         target: target_entity,
         owner: owner_entity,
         last_update: job.last_update,
-        send_email: job.send_email
+        send_email: job.send_email,
+        last_status: None
     })
 }
 
@@ -101,7 +102,10 @@ pub fn get_jobs(conn: &PgConnection)
             target: target_entity,
             owner: owner_entity,
             last_update: job.last_update,
-            send_email: job.send_email
+            send_email: job.send_email,
+
+            // TODO: check latest log entry
+            last_status: Some(false)
         });
     }
     
@@ -134,7 +138,10 @@ pub fn get_job(uid: Uuid, conn: &PgConnection)
                 target: target_entity,
                 owner: owner_entity,
                 last_update: job.last_update,
-                send_email: job.send_email
+                send_email: job.send_email,
+
+                // TODO: check latest log entry
+                last_status: Some(false)
             }))
         },
         None => Ok(None),

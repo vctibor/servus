@@ -18,16 +18,16 @@
             <th></th>
         </tr>
         <tr ng-repeat="machine in machines" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
-            <td>
+            <td class="basic_td">
                 <input ng-model="machine.name">
             </td>
-            <td>
+            <td class="basic_td">
                 <input ng-model="machine.username">
             </td>
-            <td>
+            <td class="basic_td">
                 <input ng-model="machine.url">
             </td>
-            <td>
+            <td class="basic_td">
                 <input ng-model="machine.port">
             </td>
             <td><button class="fa fa-times delete_btn"></button></td>

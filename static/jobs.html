@@ -10,6 +10,7 @@
 
 <table>
     <tr>
+        <th></th>
         <th>Name</th>
         <th>Schedule</th>
         <th>Target</th>
@@ -18,6 +19,12 @@
         <th></th>
     </tr>
     <tr ng-repeat="job in jobs" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
+        <td>
+            <div ng-switch on="job.last_status">
+                <span class="fa fa-check-circle-o" ng-switch-when="true"></span>
+                <span class="fa fa-exclamation-triangle" ng-switch-when="false"></span>
+            </div>
+        </td>
         <td>
             <input ng-model="job.name">
         </td>
@@ -30,7 +37,7 @@
         <td>
             <input ng-model="job.owner.name">
         </td>
-        <td>
+        <td class="basic_td">
             <label class="main">
                 <input type="checkbox" ng-model="job.send_email">
                 <span class="w3docs"></span>
@@ -39,6 +46,20 @@
         <td>
             <button class="fa fa-times delete_btn"></button>
         </td>
+
+        <!--
+        <td>
+            <button class="show_job_detail" data-id="{{ machine.id }}">Detail</button>
+        </td>
+
+        <div id="{{ machine.id }}" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p>{{ machine.id }}</p>
+            </div>        
+        </div>
+        -->
+
     </tr>
 </table>
 
