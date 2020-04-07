@@ -7,6 +7,7 @@ use crate::schema::jobs::dsl::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use chrono::NaiveDateTime;
+use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset)]
 struct Job {
@@ -39,6 +40,8 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
     let target_id = job.target.id.ok_or(ServusError::new("Target ID not provided."))?;
     let owner_id = job.owner.id.ok_or(ServusError::new("Owner ID not provided."))?;
 
+    let last_update_dt = Local::now().naive_local();
+
     let job = Job {
         id: Uuid::new_v4(),
         name: job.name,
@@ -47,7 +50,7 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
         schedule: job.schedule,
         target: target_id,
         owner: owner_id,
-        last_update: job.last_update,
+        last_update: last_update_dt,
         send_email: job.send_email
     };
 
@@ -144,6 +147,8 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
     let target_id = job.target.id.ok_or(ServusError::new("Target ID not provided."))?;
     let owner_id = job.owner.id.ok_or(ServusError::new("Owner ID not provided."))?;
 
+    let last_update_dt = Local::now().naive_local();
+
     let job = Job {
         id: job_id,
         name: job.name,
@@ -152,7 +157,7 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
         schedule: job.schedule,
         target: target_id,
         owner: owner_id,
-        last_update: job.last_update,
+        last_update: last_update_dt,
         send_email: job.send_email
     };
 
