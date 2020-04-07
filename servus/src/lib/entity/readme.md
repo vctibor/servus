@@ -1,1 +1,0 @@
-Basic business entities and traits.
