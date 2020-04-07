@@ -1,1 +1,0 @@
-Data persistence layer implemented using Diesel and PostgreSQL backend.
