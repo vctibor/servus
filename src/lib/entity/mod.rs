@@ -30,7 +30,7 @@ pub struct Job {
     pub schedule: String,
     pub target: Machine,
     pub owner: User,
-    pub last_update: NaiveDateTime,
+    pub last_update: Option<NaiveDateTime>,
     pub send_email: bool,
     pub last_status: Option<bool>
 }
@@ -38,6 +38,8 @@ pub struct Job {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TxLog {
     pub id: Option<Uuid>,
+    pub stdout: Option<String>,
+    pub stderr: Option<String>,
     pub success: bool,
     pub time: NaiveDateTime,
     pub message: String,

@@ -18,7 +18,7 @@ struct Job {
     pub schedule: String,
     pub target: Uuid,
     pub owner: Uuid,
-    pub last_update: NaiveDateTime,
+    pub last_update: Option<NaiveDateTime>,
     pub send_email: bool
 }
 
@@ -30,7 +30,7 @@ struct NewJob {
     pub schedule: String,
     pub target: Uuid,
     pub owner: Uuid,
-    pub last_update: NaiveDateTime,
+    pub last_update: Option<NaiveDateTime>,
     pub send_email: bool
 }
 
@@ -50,7 +50,7 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
         schedule: job.schedule,
         target: target_id,
         owner: owner_id,
-        last_update: last_update_dt,
+        last_update: Some(last_update_dt),
         send_email: job.send_email
     };
 
@@ -164,7 +164,7 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
         schedule: job.schedule,
         target: target_id,
         owner: owner_id,
-        last_update: last_update_dt,
+        last_update: Some(last_update_dt),
         send_email: job.send_email
     };
 

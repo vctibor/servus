@@ -13,6 +13,8 @@ use chrono::NaiveDateTime;
 #[table_name="tx_log"]
 pub struct Log {
     pub id: Uuid,
+    pub stdout: Option<String>,
+    pub stderr: Option<String>,
     pub success: bool,
     pub time: NaiveDateTime,
     pub message: String,
@@ -25,6 +27,8 @@ pub fn write_log(entry: LogEntry, conn: &PgConnection)
 {
     let new_entry = Log {
         id: Uuid::new_v4(),
+        stdout: entry.stdout,
+        stderr: entry.stderr,
         success: entry.success,
         time: entry.time,
         message: entry.message,
@@ -37,6 +41,8 @@ pub fn write_log(entry: LogEntry, conn: &PgConnection)
 
     let entry = LogEntry {
         id: Some(new_entry.id),
+        stdout: new_entry.stdout,
+        stderr: new_entry.stderr,
         success: new_entry.success,
         time: new_entry.time,
         message: new_entry.message,
@@ -62,6 +68,8 @@ pub fn get_job_log(job_id: Uuid, offset: i64, size: i64, conn: &PgConnection)
     for result in results {
         res_vec.push(LogEntry {
             id: Some(result.id),
+            stdout: result.stdout,
+            stderr: result.stderr,
             success: result.success,
             time: result.time,
             message: result.message,
@@ -88,6 +96,8 @@ pub fn get_log(offset: i64, size: i64, conn: &PgConnection)
     for result in results {
         res_vec.push(LogEntry {
             id: Some(result.id),
+            stdout: result.stdout,
+            stderr: result.stderr,
             success: result.success,
             time: result.time,
             message: result.message,

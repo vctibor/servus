@@ -14,39 +14,10 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "jobs";
 
-    +
     $http.get("/api/job/list")
         .then(function (response) {
             $scope.jobs = response.data;
         });
-
-    /*
-    // Get the modal
-    var modal = document.getElementById("myModal");
-
-    // Get the button that opens the modal
-    var btn = document.getElementById("myBtn");
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
-
-    // When the user clicks on the button, open the modal
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
-
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-    */
 })
 
 .controller('MachinesController', function($scope, $routeParams, $http) {
@@ -143,22 +114,22 @@ let hideAllPointers = function() {
     document.getElementById("log_pointer").style.display = "none";
 }
 
-// document.addEventListener('DOMContentLoaded', init, false);
+/*
+document.addEventListener('DOMContentLoaded', init, false);
+function init() { }
+*/
 
-function init() {
+// This function receives ID of modal-ready div,
+//  displays it as a block, and registers event handler
+//  to dispose this modal.
+let showModal = function(modalId) {
     // Get the modal
-    var modal = document.getElementById("myModal");
-
-    // Get the button that opens the modal
-    var btn = document.getElementById("myBtn");
+    var modal = document.getElementById(modalId);
 
     // Get the <span> element that closes the modal
     var span = document.getElementsByClassName("close")[0];
 
-    // When the user clicks on the button, open the modal
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
+    modal.style.display = "block";
 
     // When the user clicks on <span> (x), close the modal
     span.onclick = function() {
@@ -170,5 +141,5 @@ function init() {
         if (event.target == modal) {
             modal.style.display = "none";
         }
-    }    
+    }
 }
