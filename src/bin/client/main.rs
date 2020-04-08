@@ -2,11 +2,11 @@ mod user;
 mod machine;
 mod job;
 
-use actix_web::{web, middleware, App, HttpServer};
+use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
-use std::env;
+use actix_web::{web, middleware, App, HttpServer};
 use actix_files as fs;
 
 #[actix_rt::main]

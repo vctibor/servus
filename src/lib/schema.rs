@@ -7,7 +7,7 @@ table! {
         schedule -> Text,
         target -> Uuid,
         owner -> Uuid,
-        last_update -> Timestamp,
+        last_update -> Nullable<Timestamp>,
         send_email -> Bool,
     }
 }
@@ -25,6 +25,8 @@ table! {
 table! {
     tx_log (id) {
         id -> Uuid,
+        stdout -> Nullable<Text>,
+        stderr -> Nullable<Text>,
         success -> Bool,
         time -> Timestamp,
         message -> Text,
