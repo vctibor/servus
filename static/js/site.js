@@ -18,6 +18,33 @@ var myApp = angular.module('myApp', ['ngRoute'])
         .then(function (response) {
             $scope.jobs = response.data;
         });
+
+
+    
+    $scope.showModal = function(modalId) {
+
+        // Get the modal
+        // var modal = document.getElementById(modalId);
+        var modal = angular.element("#" + modalId);
+    
+        // Get the <span> element that closes the modal
+        // var span = document.getElementsByClassName("close")[0];
+        var spane = angular.element("." + "close")[0];
+
+        modal.style.display = "block";
+    
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+    
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
 })
 
 .controller('MachinesController', function($scope, $routeParams, $http) {
@@ -28,8 +55,10 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "machines";
 
+    /*
     $scope.machines = null;
     $scope.serialized = JSON.stringify($scope.machines, null, 2);
+    */
 
     $http.get("/api/machine/list")
         .then(function (response) {
@@ -119,10 +148,14 @@ document.addEventListener('DOMContentLoaded', init, false);
 function init() { }
 */
 
+/*
 // This function receives ID of modal-ready div,
 //  displays it as a block, and registers event handler
 //  to dispose this modal.
-let showModal = function(modalId) {
+function showModal() {
+
+    alert("test");
+
     // Get the modal
     var modal = document.getElementById(modalId);
 
@@ -143,3 +176,4 @@ let showModal = function(modalId) {
         }
     }
 }
+*/

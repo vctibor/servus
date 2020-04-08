@@ -17,6 +17,8 @@
         <th>Owner</th>
         <th>Send email</th>
         <th></th>
+        <th></th>
+        <th></th>
     </tr>
     <tr ng-repeat="job in jobs" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
         <td>
@@ -47,18 +49,18 @@
             <button class="fa fa-times delete_btn"></button>
         </td>
 
-        <!--
         <td>
-            <button class="show_job_detail" data-id="{{ machine.id }}">Detail</button>
+            <button class="show_job_detail" ng-click="showModal(job.id)">Detail</button>
         </td>
-        -->
-        
-        <div id="{{ machine.id }}" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <p>{{ machine.id }}</p>
-            </div>        
-        </div>
+
+        <td>
+            <div id="job.id" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p>{{ job.id }}</p>
+                </div>        
+            </div>
+        </td>
 
     </tr>
 </table>
