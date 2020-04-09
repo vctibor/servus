@@ -50,20 +50,27 @@
         </td>
 
         <td>
-            <button class="show_job_detail" ng-click="showModal(job.id)">Detail</button>
+            <button ng-click="showModal = job.id">test</button>
         </td>
 
         <td>
-            <div id="job.id" class="modal">
+            <div id="job.id" class="modal" ng-show="showModal == job.id">
                 <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <p>{{ job.id }}</p>
+                    <span class="close" ng-click="showModal = ''">&times;</span>
+                    
+                    <input ng-model="job.name">
+                    <input ng-model="job.description">
+                    <input ng-model="job.schedule">
+                    <input ng-model="job.code">
                 </div>        
             </div>
         </td>
 
+        {{ showModal }}
+
     </tr>
 </table>
+
 
 <!--
 <div style="max-width: 50vw;">
@@ -72,3 +79,4 @@
 -->
 
 <hr/>
+

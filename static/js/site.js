@@ -19,8 +19,11 @@ var myApp = angular.module('myApp', ['ngRoute'])
             $scope.jobs = response.data;
         });
 
-
     
+    $scope.showModal = 1;
+
+
+    /*
     $scope.showModal = function(modalId) {
 
         // Get the modal
@@ -45,6 +48,7 @@ var myApp = angular.module('myApp', ['ngRoute'])
             }
         }
     }
+    */
 })
 
 .controller('MachinesController', function($scope, $routeParams, $http) {
