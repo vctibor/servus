@@ -13,6 +13,8 @@ Think about this like `cron` with WebUI.
 
 - Sending emails in case of failure.
 
+- Button to run job immediately.
+
 
 ## Authentication
 
@@ -21,6 +23,7 @@ Application server does not implement any user authentication.
 It is intended to be deployed behind `nginx` reverse-proxy with client-side authentication configured and required.
 
 To setup it you can follow [this guide](https://gist.github.com/mtigas/952344).
+
 
 ## SSH agent
 
@@ -37,6 +40,7 @@ ssh-add
 ssh-add -l
 ```
 
+
 ## Deployment
 
 `servus` consists of two separate processes:
@@ -48,6 +52,7 @@ Implements web interface.
 ### daemon
 
 This process is responsible for actual execution of scheduled jobs.
+
 
 ## Tech stack
 
@@ -62,6 +67,7 @@ This process is responsible for actual execution of scheduled jobs.
 - `AngularJS` frontend
 
 - `Nginx` reverse proxy
+
 
 ## License
 

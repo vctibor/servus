@@ -1,25 +1,30 @@
 use std::io::prelude::*;
 use std::net::{TcpStream};
+use std::env;
+use std::time::Duration;
+use std::collections::HashMap;
 use ssh2::Session;
-
 use servus::entity::Job as JobEntity;
 use servus::entity::{AnyError};
-
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
-use std::env;
-
 use tokio::time::delay_for;
-
 use job_scheduler::{JobScheduler, Job};
-use std::time::Duration;
-
+use chrono::NaiveDateTime;
+use uuid::Uuid;
 
 /// Number of milliseconds to sleep between every job scheduler check.
 /// Perhaps should be configurable.
 const REFRESH_RATE: u64 = 500;
 
+/// Represents scheduled job
+struct ScheduledJob {
+    scheduled_job_id: Uuid,
+
+    /// Last update of DEFINITION of job.
+    last_update: NaiveDateTime
+}
 
 /// Executes provided command on remote machine using ssh.
 /// Note that source machine has to have key-based access to target machine,
@@ -33,7 +38,7 @@ const REFRESH_RATE: u64 = 500;
 ///
 /// # list ssh identities:
 /// > ssh-add -l
-pub fn exec_remote(username: &str, url: &str, port: i32, command: &str)
+fn exec_remote(username: &str, url: &str, port: i32, command: &str)
     -> Result<String, AnyError>
 {
     let addr = format!("{}:{}", url, port);
@@ -57,37 +62,31 @@ pub fn exec_remote(username: &str, url: &str, port: i32, command: &str)
     return Ok(output);
 }
 
-pub fn exec_remote_job(job: &JobEntity) -> Result<String, AnyError> {
-    let username = job.target.username.clone();
-    let url = job.target.url.clone();
-    let port = job.target.port;
-    let command = job.code.clone();
-    exec_remote(&username, &url, port, &command)
+/// Should check if job was already scheduled, and compare update dates.
+/// Returns 'true' if job SHOULD be scheduled.
+/// Returns scheduled job ID, if job was scheduled, but definition was updated,
+/// and old scheduled instance should be removed. 
+/// TODO: This could REALLY use some unit tests.
+fn should_schedule_job(job: &JobEntity, scheduled_jobs: &HashMap<Uuid, ScheduledJob>) -> (bool, Option<Uuid>) {
+    
+    if job.id.is_none() || job.last_update.is_none() {
+        return (true, None);
+    }
+
+    if let Some(scheduled_job) = scheduled_jobs.get(&job.id.unwrap()) {
+        if job.last_update.unwrap() > scheduled_job.last_update {
+            return (true, Some(scheduled_job.scheduled_job_id));
+        }
+
+        return (false, None);
+    }
+
+    (true, None)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), AnyError>
 {
-    //
-    //  let scheduled_jobs = Map<job_id, scheduled_job_id>   // have map structure mapping job "type" to scheduled "instance"
-    //
-    //  while true:
-    //
-    //      let jobs = servus::persistence::get_jobs()           // obtain list of all scheduled jobs
-    // 
-    //      if job not in scheduled_jobs:
-    //          -- get job details
-    //          -- schedule job
-    //      elif job.last_update > scheduled_job.last_update:
-    //          -- remove old instance
-    //          -- reschedue job
-    //      else:
-    //          -- skip
-    //  
-    //  job_scheduler.tick()
-    //      -- log stdout, stderr, exit status
-
-
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")?;
@@ -97,46 +96,74 @@ async fn main() -> Result<(), AnyError>
     let pool = r2d2::Pool::builder().build(manager)?;
         
     let mut job_scheduler = JobScheduler::new();
-        
+      
+
+    let mut scheduled_jobs: HashMap<Uuid, ScheduledJob> = HashMap::new();
+
+    println!("Started daemon.");
+
     loop {
         
         let conn = pool.get().expect("Failed to obtain connection from pool.");
 
         let jobs = servus::persistence::get_jobs(&conn)?;
-
+        
         for job in jobs {
 
-            let schedule = "* 1/3 * * * *".parse();
+            if let Some(job_id) = job.id {
 
-            if schedule.is_err() {
-                println!("Failed to parse schedule for job {}", job.id.unwrap());
-                continue;
+                let (should_schedule, scheduled_id) = should_schedule_job(&job, &scheduled_jobs);
+
+                if should_schedule {
+    
+                    println!("Attempt to schedule job {} ({}).", job.name, job_id);
+    
+                    if let Some(scheduled_id) = scheduled_id {
+                        println!("Removing old instance {} of job {} ({}).", scheduled_id, job.name, job_id);
+                        job_scheduler.remove(scheduled_id);
+                        println!("Removed {}.", scheduled_id);
+                    }
+                    
+                    let schedule = job.schedule.parse();
+    
+                    if schedule.is_err() {
+                        println!("Failed to parse schedule {} for job {} ({}).", job.schedule, job.name, job_id);
+
+                        // TODO: log to DB
+
+                        continue;
+                    }
+    
+                    let schedule = schedule.unwrap();
+                    
+                    // We will have to keep map of <job_id, scheduled_job_id>,
+                    //   and rescheduled every updated job.
+                    let scheduled_job_id = job_scheduler.add(Job::new(schedule, || {
+                        
+                        let username = "malky";
+                        let url = "dockerhost.malkynet";
+                        let port = 22;
+                        let command = "ls -lh";
+
+                        let execution_res = exec_remote(username, url, port, command);
+                        
+                        println!("{:?}", execution_res);
+
+                        // TODO: log to DB
+                    }));
+    
+                    scheduled_jobs.insert(job.id.unwrap(), ScheduledJob {
+                        scheduled_job_id: scheduled_job_id,
+                        last_update: job.last_update.unwrap().clone()
+                    });
+
+                    println!("Successfully scheduled job {} ({}) with ID {}.", job.name, job_id, scheduled_job_id);
+                }
             }
-
-            let schedule = schedule.unwrap();
-            
-            // We will have to keep map of <job_id, scheduled_job_id>,
-            //   and rescheduled every updated job.
-            let scheduled_job_id = job_scheduler.add(Job::new(schedule, || {
-                
-                /*
-                let username = "malky";
-                let url = "dockerhost.malkynet";
-                let port = 22;
-                let command = "ls -lh";
-                let res = exec_remote(username, url, port, command);
-                println!("{}", res)
-                */
-
-                // let exec_res = exec_remote_job(&job);
-
-                println!("test");
-            }));
         }
 
         job_scheduler.tick();
 
         delay_for(Duration::from_millis(REFRESH_RATE)).await;
     }
-    
 }
