@@ -42,7 +42,7 @@ pub fn add_user(user: UserEntity, conn: &PgConnection)
 pub fn get_users(conn: &PgConnection)
                  -> Result<Vec<UserEntity>, diesel::result::Error>
 {
-    let user_table: Vec<User> = users.load::<User>(conn)?;
+    let user_table: Vec<User> = users.order(name).load::<User>(conn)?;
 
     let mut entities = Vec::with_capacity(user_table.len());
 

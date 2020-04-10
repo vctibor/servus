@@ -12,14 +12,20 @@
 
     <table>
         <tr>
+            <th></th>
             <th>Name</th>
             <th>Email</th>
-            <th></th>
         </tr>
         <tr ng-repeat="user in users" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
-            <td class="basic_td">{{ user.name }}</td>
-            <td class="basic_td">{{ user.email }}</td>
-            <td><button class="fa fa-times delete_btn"></button></td>
+            <td>
+                <button class="fa fa-times in_row_btn" title="Delete user"></button>
+            </td>
+            <td>
+                <input class="table_input" ng-model="user.name">
+            </td>
+            <td>
+                <input class="table_input" ng-model="user.email">
+            </td>
         </tr>
     </table>
 

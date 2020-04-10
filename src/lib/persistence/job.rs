@@ -81,7 +81,7 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
 pub fn get_jobs(conn: &PgConnection)
                 -> Result<Vec<JobEntity>, AnyError>
 {
-    let job_table: Vec<Job> = jobs.load::<Job>(conn)?;
+    let job_table: Vec<Job> = jobs.order(name).load::<Job>(conn)?;
 
     let mut entities = Vec::with_capacity(job_table.len());
 

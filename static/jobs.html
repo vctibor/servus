@@ -2,14 +2,17 @@
 
 <button class="btn add_btn"><span class="fa fa-plus"></span> Add job</button>
 
-<button class="btn refresh_btn"><span class="fa fa-repeat"></span> Refresh</button>
+<button class="btn refresh_btn" disabled><span class="fa fa-repeat"></span> Refresh</button>
 
-<button class="btn save_btn"><span class="fa fa-check"></span> Save changes</button>
+<button class="btn save_btn" disabled><span class="fa fa-check"></span> Save changes</button>
 
 <hr/>
 
 <table>
     <tr>
+        <th></th>
+        <th></th>
+        <th></th>
         <th></th>
         <th>Name</th>
         <th>Schedule</th>
@@ -17,27 +20,50 @@
         <th>Owner</th>
         <th>Send email</th>
         <th></th>
-        <th></th>
-        <th></th>
     </tr>
     <tr ng-repeat="job in jobs" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
         <td>
-            <div ng-switch on="job.last_status">
+            <!-- Last status icon. -->
+            <div ng-switch on="job.last_status" class="last_status_icon" title="Last status">
                 <span class="fa fa-check-circle-o" ng-switch-when="true"></span>
                 <span class="fa fa-exclamation-triangle" ng-switch-when="false"></span>
+                <!-- We should default show no icon when job wasn't executed ever. -->
             </div>
         </td>
+
         <td>
-            <input ng-model="job.name">
+            <!-- Job detail button. -->
+            <button class="in_row_btn job_detail_btn" ng-click="showModal = job.id" title="Job detail">
+                <span class="fa fa-search"></span>
+            </button>
+        </td>
+
+        <td>
+            <button class="in_row_btn execute_now_btn" title="Execute now">
+                <span class="fa fa-play"></span>
+            </button>
+        </td>
+
+        <td>
+            <!-- Button to delete job. -->
+            <button class="fa fa-times in_row_btn delete_job_btn" title="Delete job"></button>
+        </td>
+
+        <td>
+            <input class="table_input" ng-model="job.name">
         </td>
         <td>
-            <input ng-model="job.schedule">
+            <input class="table_input" ng-model="job.schedule">
         </td>
         <td>
-            <input ng-model="job.target.name">
+            <select ng-model="job.target.id" class="jobs_select">
+                <option ng-repeat="machine in machines" value="{{machine.id}}">{{machine.name}}</option>
+            </select>
         </td>
         <td>
-            <input ng-model="job.owner.name">
+            <select ng-model="job.owner.id" class="jobs_select">
+                <option ng-repeat="user in users" value="{{user.id}}">{{user.name}}</option>
+            </select>
         </td>
         <td class="basic_td">
             <label class="main">
@@ -45,28 +71,31 @@
                 <span class="w3docs"></span>
             </label>
         </td>
-        <td>
-            <button class="fa fa-times delete_btn"></button>
-        </td>
 
-        <td>
-            <button ng-click="showModal = job.id">test</button>
-        </td>
 
         <td>
             <div id="job.id" class="modal" ng-show="showModal == job.id">
                 <div class="modal-content">
                     <span class="close" ng-click="showModal = ''">&times;</span>
                     
-                    <input ng-model="job.name">
-                    <input ng-model="job.description">
-                    <input ng-model="job.schedule">
-                    <input ng-model="job.code">
+                    <input class="detail_input detail_input_header" ng-model="job.name">
+
+                    <div class="job_id">{{ job.id }}</div>
+
+                    <h3>Description</h3>
+                    
+                    <input class="detail_input detail_input_description" ng-model="job.description">
+                    
+                    <h3>Schedule</h3>
+                    
+                    <input class="detail_input detail_input_schedule" ng-model="job.schedule">
+                    
+                    <h3>Code</h3>
+                    
+                    <input class="detail_input detail_input_code" ng-model="job.code">
                 </div>        
             </div>
         </td>
-
-        {{ showModal }}
 
     </tr>
 </table>
@@ -75,6 +104,14 @@
 <!--
 <div style="max-width: 50vw;">
     {{ jobs }}
+</div>
+
+<div style="max-width: 50vw;">
+    {{ users }}
+</div>
+
+<div style="max-width: 50vw;">
+    {{ machines }}
 </div>
 -->
 

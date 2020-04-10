@@ -18,19 +18,21 @@
             <th></th>
         </tr>
         <tr ng-repeat="machine in machines" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
-            <td class="basic_td">
-                <input ng-model="machine.name">
+            <td>
+                <button class="fa fa-times in_row_btn" title="Delete machine"></button>
             </td>
-            <td class="basic_td">
-                <input ng-model="machine.username">
+            <td>
+                <input ng-model="machine.name" class="table_input">
             </td>
-            <td class="basic_td">
-                <input ng-model="machine.url">
+            <td>
+                <input ng-model="machine.username" class="table_input">
             </td>
-            <td class="basic_td">
-                <input ng-model="machine.port">
+            <td>
+                <input ng-model="machine.url" class="table_input">
             </td>
-            <td><button class="fa fa-times delete_btn"></button></td>
+            <td>
+                <input ng-model="machine.port" class="table_input">
+            </td>
         </tr>
     </table>
 

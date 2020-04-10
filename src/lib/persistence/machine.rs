@@ -50,7 +50,7 @@ pub fn add_machine(machine: MachineEntity, conn: &PgConnection)
 pub fn get_machines(conn: &PgConnection)
                  -> Result<Vec<MachineEntity>, diesel::result::Error>
 {
-    let machine_table: Vec<Machine> = machines.load::<Machine>(conn)?;
+    let machine_table: Vec<Machine> = machines.order(name).load::<Machine>(conn)?;
 
     let mut entities = Vec::with_capacity(machine_table.len());
 
