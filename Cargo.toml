@@ -28,3 +28,5 @@ chrono = { version = "0.4", features = ["serde"] }
 ssh2 = "0.6"
 job_scheduler = "1.1"
 tokio = { version = "0.2", features = ["full"] }
+
+lazy_static = "1.4"

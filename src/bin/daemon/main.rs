@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use std::io::prelude::*;
 use std::net::{TcpStream};
 use std::env;
@@ -6,17 +9,36 @@ use std::collections::HashMap;
 use ssh2::Session;
 use servus::entity::Job as JobEntity;
 use servus::entity::{AnyError};
+use servus::entity::TxLog as LogEntry;
+use servus::persistence::write_log;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
 use tokio::time::delay_for;
 use job_scheduler::{JobScheduler, Job};
+use chrono::prelude::*;
 use chrono::NaiveDateTime;
 use uuid::Uuid;
+use ::r2d2::Pool;
 
 /// Number of milliseconds to sleep between every job scheduler check.
 /// Perhaps should be configurable.
 const REFRESH_RATE: u64 = 500;
+
+lazy_static! {
+    /// This is an example for using doc comment attributes
+    static ref POOL: Pool<ConnectionManager<PgConnection>> = {
+        dotenv().ok();
+
+        let database_url = env::var("DATABASE_URL").expect("Failed to read env var DATABASE_URL.");
+    
+        let manager = ConnectionManager::<PgConnection>::new(database_url);
+    
+        let pool = r2d2::Pool::builder().build(manager).expect("Failed to build connection pool.");
+
+        pool
+    };
+}
 
 /// Represents scheduled job
 struct ScheduledJob {
@@ -62,7 +84,7 @@ fn exec_remote(username: &str, url: &str, port: i32, command: &str)
     return Ok(output);
 }
 
-/// Should check if job was already scheduled, and compare update dates.
+/// Checks if job was already scheduled and compares update dates.
 /// Returns 'true' if job SHOULD be scheduled.
 /// Returns scheduled job ID, if job was scheduled, but definition was updated,
 /// and old scheduled instance should be removed. 
@@ -84,19 +106,49 @@ fn should_schedule_job(job: &JobEntity, scheduled_jobs: &HashMap<Uuid, Scheduled
     (true, None)
 }
 
+fn write_log_success(stdout: &str, msg: &str, job_id: Uuid) {
+    let entry = LogEntry {
+        id: None,
+        stdout: Some(stdout.to_owned()),
+        stderr: None,
+        success: true,
+        time: Local::now().naive_local(),
+        message: msg.to_owned(),
+        job: job_id
+    };
+
+    write_log_entry(entry);
+}
+
+fn write_log_err(stderr: &str, msg: &str, job_id: Uuid) {
+    let entry = LogEntry {
+        id: None,
+        stdout: None,
+        stderr: Some(stderr.to_owned()),
+        success: false,
+        time: Local::now().naive_local(),
+        message: msg.to_owned(),
+        job: job_id
+    };
+
+    write_log_entry(entry);
+}
+
+fn write_log_entry(log_entry: LogEntry) {
+    
+    let conn = POOL.get().unwrap();
+    
+    let write_result = write_log(log_entry, &conn);
+
+    if write_result.is_err() {
+        println!("Failed to write to log.");
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), AnyError>
 {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL")?;
-
-    let manager = ConnectionManager::<PgConnection>::new(database_url);
-
-    let pool = r2d2::Pool::builder().build(manager)?;
-        
     let mut job_scheduler = JobScheduler::new();
-      
 
     let mut scheduled_jobs: HashMap<Uuid, ScheduledJob> = HashMap::new();
 
@@ -104,7 +156,7 @@ async fn main() -> Result<(), AnyError>
 
     loop {
         
-        let conn = pool.get().expect("Failed to obtain connection from pool.");
+        let conn = POOL.get().expect("Failed to obtain connection from pool.");
 
         let jobs = servus::persistence::get_jobs(&conn)?;
         
@@ -129,27 +181,49 @@ async fn main() -> Result<(), AnyError>
                     if schedule.is_err() {
                         println!("Failed to parse schedule {} for job {} ({}).", job.schedule, job.name, job_id);
 
-                        // TODO: log to DB
+                        let entry = LogEntry {
+                            id: None,
+                            stdout: None,
+                            stderr: None,
+                            success: false,
+                            time: Local::now().naive_local(),
+                            message: format!("Failed to parse schedule {} for job {} ({}).", job.schedule, job.name, job_id),
+                            job: job_id
+                        };
+
+                        let write_result = write_log(entry, &conn);
+                        
+                        if write_result.is_err() {
+                            println!("Failed to write to log.");
+                        }
 
                         continue;
                     }
     
                     let schedule = schedule.unwrap();
-                    
-                    // We will have to keep map of <job_id, scheduled_job_id>,
-                    //   and rescheduled every updated job.
-                    let scheduled_job_id = job_scheduler.add(Job::new(schedule, || {
-                        
-                        let username = "malky";
-                        let url = "dockerhost.malkynet";
-                        let port = 22;
-                        let command = "ls -lh";
+                    let username = job.target.username.clone();
+                    let url = job.target.url.clone();
+                    let port = job.target.port;
+                    let command = job.code.clone();
+                    let job_name = job.name.clone();
 
-                        let execution_res = exec_remote(username, url, port, command);
+                    let scheduled_job_id = job_scheduler.add(Job::new(schedule, move || {
                         
-                        println!("{:?}", execution_res);
-
-                        // TODO: log to DB
+                        let execution_res = exec_remote(&username, &url, port, &command);
+                        
+                        match execution_res {
+                            Ok(stdout) => {
+                                let msg = format!("Succesfully executed job {} ({}).", job_name.clone(), job_id);
+                                println!("{}", msg.clone());
+                                write_log_success(&stdout, &msg, job_id);
+                            }
+                            
+                            Err(stderr) => {
+                                let msg = format!("Execution of job {} ({}) failed: {}.", job_name.clone(), job_id, stderr);
+                                println!("{}", msg.clone());
+                                write_log_err(&stderr.to_string(), &msg, job_id);
+                            }
+                        }
                     }));
     
                     scheduled_jobs.insert(job.id.unwrap(), ScheduledJob {
