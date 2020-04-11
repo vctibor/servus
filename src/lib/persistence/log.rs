@@ -6,6 +6,7 @@ use crate::entity::TxLog as LogEntry;
 use crate::entity::AnyError;
 use crate::schema::tx_log;
 use crate::schema::tx_log::dsl::*;
+use crate::persistence::get_job;
 use chrono::NaiveDateTime;
 
 
@@ -46,7 +47,8 @@ pub fn write_log(entry: LogEntry, conn: &PgConnection)
         success: new_entry.success,
         time: new_entry.time,
         message: new_entry.message,
-        job: new_entry.job
+        job: new_entry.job,
+        job_name: None
     };
 
     Ok(entry)
@@ -65,6 +67,7 @@ pub fn get_job_log(job_id: Uuid, offset: i64, size: i64, conn: &PgConnection)
                         .load::<Log>(conn)?;
     
     let mut res_vec= Vec::with_capacity(results.len());
+
     for result in results {
         res_vec.push(LogEntry {
             id: Some(result.id),
@@ -73,7 +76,8 @@ pub fn get_job_log(job_id: Uuid, offset: i64, size: i64, conn: &PgConnection)
             success: result.success,
             time: result.time,
             message: result.message,
-            job: result.job
+            job: result.job,
+            job_name: None
         })
     }
 
@@ -94,6 +98,16 @@ pub fn get_log(offset: i64, size: i64, conn: &PgConnection)
 
     let mut res_vec= Vec::with_capacity(results.len());
     for result in results {
+        let job_entity = get_job(result.job, &conn);
+        
+        let job_name = match job_entity {
+            Ok(j) => match j {
+                Some(jj) => Some(jj.name),
+                None => None,
+            },
+            Err(_) => None
+        };
+
         res_vec.push(LogEntry {
             id: Some(result.id),
             stdout: result.stdout,
@@ -101,7 +115,8 @@ pub fn get_log(offset: i64, size: i64, conn: &PgConnection)
             success: result.success,
             time: result.time,
             message: result.message,
-            job: result.job
+            job: result.job,
+            job_name: job_name
         })
     }
 

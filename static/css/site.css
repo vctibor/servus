@@ -93,15 +93,33 @@ td {
 }
 
 .detail_input_description {
-    
+    width: 100%;
+    font-style: italic;
 }
 
 .detail_input_schedule {
-    
+    font-family: "Fira Code";
+}
+
+.detail_code_wrapper {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaa;
+    border-radius: 5px;
+
+    height: 18vh;
+    padding: 8px;
 }
 
 .detail_input_code {
+    display: block;
+    resize: none;
+    width: 100%;
+    height: 100%;
+    border-style: none;
+    background-color: transparent;
 
+    font-family: "Fira Code";
 }
 
 .table_row:hover {
@@ -135,6 +153,13 @@ td {
 .btn:disabled {
     background-color: #888;
     cursor: default;
+}
+
+.btn_log {
+    background-color: #46e041;
+    font-size: 22px;
+    width: 50px;
+    height: 30px;
 }
 
 /*
@@ -214,8 +239,7 @@ hr {
     border: 0;
     color: transparent;
 
-    margin-top: 1em;
-    margin-bottom: 1em;
+    height: 1em;
 }
 
 :focus {

@@ -43,6 +43,7 @@ pub struct TxLog {
     pub success: bool,
     pub time: NaiveDateTime,
     pub message: String,
-    pub job: Uuid
+    pub job: Uuid,
+    pub job_name: Option<String>
 }
 

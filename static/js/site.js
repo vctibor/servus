@@ -1,4 +1,4 @@
-var myApp = angular.module('myApp', ['ngRoute'])
+var servus = angular.module('servus', ['ngRoute'])
 
 .controller('MainController', function($scope, $route, $routeParams, $location) {
     $scope.$route = $route;
@@ -14,20 +14,76 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "jobs";
 
-    $http.get("/api/job/list")
-        .then(function (response) {
-            $scope.jobs = response.data;
-        });
+    $scope.jobs = [];
+    $scope.jobsOld = [];
 
-    $http.get("/api/user/list")
-        .then(function (response) {
-            $scope.users = response.data;
-        });
+    $scope.refresh = function() {
 
-    $http.get("/api/machine/list")
-        .then(function (response) {
-            $scope.machines = response.data;
+        $http.get("/api/job/list")
+            .then(function (response) {
+                $scope.jobs = response.data;
+                $scope.jobsOld = JSON.parse(JSON.stringify($scope.jobs));
+            });
+
+        $http.get("/api/user/list")
+            .then(function (response) {
+                $scope.users = response.data;
+            });
+
+        $http.get("/api/machine/list")
+            .then(function (response) {
+                $scope.machines = response.data;
+            });
+    }
+
+    $scope.temp_id = 0;
+
+    $scope.addJob = function() {
+        $scope.temp_id = $scope.temp_id + 1;
+        $scope.jobs.push({
+            "id": `temporary-id-${$scope.temp_id}`,
+            "name": "New job",
+            "schedule": "* * * * *"
         });
+    }
+
+    $scope.deleteJob = function(id) {
+        $scope.jobs = $scope.jobs.filter(function(job) {
+            return job.id !== id;
+        });
+    }
+    
+    $scope.hasChanged = function() {
+        let newJobs = $scope.jobs;
+        let newJobsLen = newJobs.length; 
+        let oldJobs = $scope.jobsOld;
+        let oldJobsLen = oldJobs.length;
+
+        if (newJobsLen !== oldJobsLen) {
+            return true;
+        }
+
+        for (var ix = 0; ix < newJobsLen; ix++) {
+            let newJob = newJobs[ix];
+            let oldJob = oldJobs[ix];
+
+            if (newJob.id !== oldJob.id ||
+                newJob.name !== oldJob.name ||
+                newJob.description !== oldJob.description ||
+                newJob.schedule !== oldJob.schedule ||
+                newJob.target.id !== oldJob.target.id ||
+                newJob.owner.id !== oldJob.owner.id ||
+                newJob.send_email !== oldJob.send_email ||
+                newJob.code !== oldJob.code)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    $scope.refresh();
 })
 
 .controller('MachinesController', function($scope, $routeParams, $http) {
@@ -65,6 +121,11 @@ var myApp = angular.module('myApp', ['ngRoute'])
     $scope.params = $routeParams;
 
     $scope.active_page = "log";
+
+    $http.get("/api/log/0/20")
+        .then(function (response) {
+            $scope.log = response.data;
+        });
 })
 
 .config(function($routeProvider, $locationProvider) {
@@ -120,8 +181,3 @@ let hideAllPointers = function() {
     document.getElementById("users_pointer").style.display = "none";
     document.getElementById("log_pointer").style.display = "none";
 }
-
-/*
-document.addEventListener('DOMContentLoaded', init, false);
-function init() { }
-*/

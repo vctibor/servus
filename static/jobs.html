@@ -1,10 +1,16 @@
 <h2>Jobs</h2>
 
-<button class="btn add_btn"><span class="fa fa-plus"></span> Add job</button>
+<button class="btn add_btn" ng-click="addJob()">
+    <span class="fa fa-plus"></span> Add job
+</button>
 
-<button class="btn refresh_btn" disabled><span class="fa fa-repeat"></span> Refresh</button>
+<button class="btn refresh_btn" ng-click="refresh()" ng-disabled="!hasChanged()">
+    <span class="fa fa-repeat"></span> Refresh
+</button>
 
-<button class="btn save_btn" disabled><span class="fa fa-check"></span> Save changes</button>
+<button class="btn save_btn" ng-disabled="!hasChanged()">
+    <span class="fa fa-check"></span> Save changes
+</button>
 
 <hr/>
 
@@ -39,6 +45,7 @@
         </td>
 
         <td>
+            <!-- Execute now button. -->
             <button class="in_row_btn execute_now_btn" title="Execute now">
                 <span class="fa fa-play"></span>
             </button>
@@ -46,7 +53,9 @@
 
         <td>
             <!-- Button to delete job. -->
-            <button class="fa fa-times in_row_btn delete_job_btn" title="Delete job"></button>
+            <button class="in_row_btn delete_job_btn" title="Delete job" ng-click="deleteJob(job.id)">
+                <span class="fa fa-times"></span>
+            </button>
         </td>
 
         <td>
@@ -91,8 +100,10 @@
                     <input class="detail_input detail_input_schedule" ng-model="job.schedule">
                     
                     <h3>Code</h3>
-                    
-                    <input class="detail_input detail_input_code" ng-model="job.code">
+
+                    <div class="detail_code_wrapper">
+                        <textarea spellcheck="false" class="detail_input_code" ng-model="job.code">
+                    </div>
                 </div>        
             </div>
         </td>
@@ -101,14 +112,31 @@
 </table>
 
 
+
 <!--
+<hr/>
+<div>
+    Diff: {{ changed() }}
+</div>
+
 <div style="max-width: 50vw;">
     {{ jobs }}
 </div>
 
+<hr/>
+
+<div style="max-width: 50vw;">
+    {{ jobsOld }}
+</div>
+-->
+<!--
+<hr/>
+
 <div style="max-width: 50vw;">
     {{ users }}
 </div>
+
+<hr/>
 
 <div style="max-width: 50vw;">
     {{ machines }}
