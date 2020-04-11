@@ -1,6 +1,7 @@
 mod user;
 mod machine;
 mod job;
+mod log;
 
 use std::env;
 use diesel::pg::PgConnection;
@@ -52,6 +53,8 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/api/job/create").route(web::post().to(job::create_job)))
             .service(web::resource("/api/job/update/{job_id}").route(web::post().to(job::update_job)))
             .service(web::resource("/api/job/delete/{job_id}").route(web::post().to(job::delete_job)))
+
+            .service(web::resource("/api/log/{offset}/{entries}").route(web::get().to(log::get_log_entries)))
 
             .service(fs::Files::new("/", "./static/").index_file("index.html"))
     })
