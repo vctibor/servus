@@ -75,52 +75,6 @@ td {
     font-variant: small-caps;
 }
 
-.job_id {
-    text-align: left;
-}
-
-.detail_input {
-    display: block;
-    border-style: none;
-
-    width: max-content;
-}
-
-.detail_input_header {
-    font-size: 2em;
-    font-weight: bolder;
-    font-variant: small-caps;
-}
-
-.detail_input_description {
-    width: 100%;
-    font-style: italic;
-}
-
-.detail_input_schedule {
-    font-family: "Fira Code";
-}
-
-.detail_code_wrapper {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #aaa;
-    border-radius: 5px;
-
-    height: 18vh;
-    padding: 8px;
-}
-
-.detail_input_code {
-    display: block;
-    resize: none;
-    width: 100%;
-    height: 100%;
-    border-style: none;
-    background-color: transparent;
-
-    font-family: "Fira Code";
-}
 
 .table_row:hover {
     background-color: #eee;
@@ -161,20 +115,6 @@ td {
     width: 50px;
     height: 30px;
 }
-
-/*
-.last_status_icon:hover {
-
-}
-
-.job_detail_btn:hover {
-
-}
-
-.execute_now_btn:hover
-
-.delete_job_btn:hover
-*/
 
 .jobs_select {
     background-color: transparent;
