@@ -102,10 +102,58 @@ var servus = angular.module('servus', ['ngRoute'])
 
     $scope.active_page = "machines";
 
-    $http.get("/api/machine/list")
-        .then(function (response) {
-            $scope.machines = response.data;
+    $scope.machines = [];
+    $scope.machinesOld = [];
+
+    $scope.refresh = function() {
+        $http.get("/api/machine/list")
+            .then(function (response) {
+                $scope.machines = response.data;
+                $scope.machinesOld = JSON.parse(JSON.stringify($scope.machines));
+            });
+    }
+
+    $scope.addMachine = function() {
+        $scope.machines.push({
+            "id": "00000000-0000-0000-0000-000000000000",
+            "name": "New machine"
         });
+    }
+
+    $scope.deleteMachine = function(id) {
+        $scope.machines = $scope.machines.filter(function(machine) {
+            return machine.id !== id;
+        });
+    }
+
+    $scope.hasChanged = function() {
+        let newMachines = $scope.machines;
+        let newMachinesLen = newMachines.length; 
+        let oldMachines = $scope.machinesOld;
+        let oldMachinesLen = oldMachines.length;
+    
+        if (newMachinesLen !== oldMachinesLen) {
+            return true;
+        }
+    
+        for (var ix = 0; ix < newMachinesLen; ix++) {
+            let newMachine = newMachines[ix];
+            let oldMachine = oldMachines[ix];
+    
+            if (newMachine.id !== oldMachine.id ||
+                newMachine.name !== oldMachine.name ||
+                newMachine.username !== oldMachine.username ||
+                newMachine.url !== oldMachine.url ||
+                newMachine.port !== oldMachine.port)
+            {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+
+    $scope.refresh();
 })
 
 .controller('UsersController', function($scope, $routeParams, $http) {
@@ -116,10 +164,57 @@ var servus = angular.module('servus', ['ngRoute'])
 
     $scope.active_page = "users";
 
-    $http.get("/api/user/list")
-        .then(function (response) {
-            $scope.users = response.data;
+    $scope.users = [];
+    $scope.usersOld = [];
+
+    $scope.refresh = function() {
+        $http.get("/api/user/list")
+            .then(function (response) {
+                $scope.users = response.data;
+                $scope.usersOld = JSON.parse(JSON.stringify($scope.users));
+            });
+    }
+
+    $scope.addUser = function() {
+        $scope.users.push({
+            "id": "00000000-0000-0000-0000-000000000000",
+            "name": "New user",
+            "email": ""
         });
+    }
+
+    $scope.deleteUser = function(id) {
+        $scope.users = $scope.users.filter(function(user) {
+            return user.id !== id;
+        });
+    }
+
+    $scope.hasChanged = function() {
+        let newUsers = $scope.users;
+        let newUsersLen = newUsers.length; 
+        let oldUsers = $scope.usersOld;
+        let oldUsersLen = oldUsers.length;
+    
+        if (newUsersLen !== oldUsersLen) {
+            return true;
+        }
+    
+        for (var ix = 0; ix < newUsersLen; ix++) {
+            let newUser = newUsers[ix];
+            let oldUser = oldUsers[ix];
+    
+            if (newUser.id !== oldUser.id ||
+                newUser.name !== oldUser.name ||
+                newUser.email !== oldUser.email)
+            {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+
+    $scope.refresh();
 })
 
 .controller('LogController', function($scope, $routeParams, $http) {

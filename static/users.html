@@ -2,11 +2,17 @@
 
     <h2>Users</h2>
         
-    <button class="btn add_btn"><span class="fa fa-plus"></span> Add user</button>
+    <button class="btn add_btn" ng-click="addUser()">
+        <span class="fa fa-plus"></span> Add user
+    </button>
 
-    <button class="btn refresh_btn"><span class="fa fa-repeat"></span> Refresh</button>
+    <button class="btn refresh_btn" ng-click="refresh()" ng-disabled="!hasChanged()">
+        <span class="fa fa-repeat"></span> Refresh
+    </button>
 
-    <button class="btn save_btn"><span class="fa fa-check"></span> Save changes</button>
+    <button class="btn save_btn" ng-click="updateUsers()" ng-disabled="!hasChanged()">
+        <span class="fa fa-check"></span> Save changes
+    </button>
 
     <hr/>
 
@@ -18,7 +24,7 @@
         </tr>
         <tr ng-repeat="user in users" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
             <td>
-                <button class="fa fa-times in_row_btn" title="Delete user"></button>
+                <button class="fa fa-times in_row_btn" ng-click="deleteUser(user.id)" title="Delete user"></button>
             </td>
             <td>
                 <input class="table_input" ng-model="user.name">
