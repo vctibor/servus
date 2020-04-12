@@ -19,7 +19,8 @@ struct Job {
     pub target: Uuid,
     pub owner: Uuid,
     pub last_update: Option<NaiveDateTime>,
-    pub send_email: bool
+    pub send_email: bool,
+    pub execute_now: bool
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -31,14 +32,15 @@ struct NewJob {
     pub target: Uuid,
     pub owner: Uuid,
     pub last_update: Option<NaiveDateTime>,
-    pub send_email: bool
+    pub send_email: bool,
+    pub execute_now: bool
 }
 
 pub fn add_job(job: JobEntity, conn: &PgConnection)
                 -> Result<JobEntity, AnyError>
 {
-    let target_id = job.target.id.ok_or(ServusError::new("Target ID not provided."))?;
-    let owner_id = job.owner.id.ok_or(ServusError::new("Owner ID not provided."))?;
+    let target_id = job.target.id.ok_or_else(|| ServusError::new("Target ID not provided."))?;
+    let owner_id = job.owner.id.ok_or_else(|| ServusError::new("Owner ID not provided."))?;
 
     let last_update_dt = Local::now().naive_local();
 
@@ -51,7 +53,8 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
         target: target_id,
         owner: owner_id,
         last_update: Some(last_update_dt),
-        send_email: job.send_email
+        send_email: job.send_email,
+        execute_now: false
     };
 
     diesel::insert_into(jobs)
@@ -59,10 +62,10 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
         .execute(conn)?;
 
     let target_entity = super::machine::get_machine(job.target, &conn)?
-        .ok_or(ServusError::new("Invalid target ID."))?;
+        .ok_or_else(|| ServusError::new("Invalid target ID."))?;
 
     let owner_entity = super::user::get_user(job.owner, &conn)?
-        .ok_or(ServusError::new("Invalid owner ID."))?;
+        .ok_or_else(|| ServusError::new("Invalid owner ID."))?;
         
     Ok(JobEntity {
         id: Some(job.id),
@@ -88,10 +91,10 @@ pub fn get_jobs(conn: &PgConnection)
     for job in job_table.iter() {
             
         let target_entity = super::machine::get_machine(job.target, &conn)?
-            .ok_or(ServusError::new("Invalid target ID."))?;
+            .ok_or_else(|| ServusError::new("Invalid target ID."))?;
 
         let owner_entity = super::user::get_user(job.owner, &conn)?
-            .ok_or(ServusError::new("Invalid owner ID."))?;            
+            .ok_or_else(|| ServusError::new("Invalid owner ID."))?;            
 
         entities.push(JobEntity {
             id: Some(job.id),
@@ -124,10 +127,10 @@ pub fn get_job(uid: Uuid, conn: &PgConnection)
         Some(job) => {
 
             let target_entity = super::machine::get_machine(job.target, &conn)?
-                .ok_or(ServusError::new("Invalid target ID."))?;
+                .ok_or_else(|| ServusError::new("Invalid target ID."))?;
     
             let owner_entity = super::user::get_user(job.owner, &conn)?
-                .ok_or(ServusError::new("Invalid owner ID."))?;
+                .ok_or_else(|| ServusError::new("Invalid owner ID."))?;
             
             Ok(Some(JobEntity {
                 id: Some(job.id),
@@ -151,8 +154,8 @@ pub fn get_job(uid: Uuid, conn: &PgConnection)
 pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
                    -> Result<usize, AnyError>
 {
-    let target_id = job.target.id.ok_or(ServusError::new("Target ID not provided."))?;
-    let owner_id = job.owner.id.ok_or(ServusError::new("Owner ID not provided."))?;
+    let target_id = job.target.id.ok_or_else(|| ServusError::new("Target ID not provided."))?;
+    let owner_id = job.owner.id.ok_or_else(|| ServusError::new("Owner ID not provided."))?;
 
     let last_update_dt = Local::now().naive_local();
 
@@ -165,11 +168,31 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
         target: target_id,
         owner: owner_id,
         last_update: Some(last_update_dt),
-        send_email: job.send_email
+        send_email: job.send_email,
+        execute_now: false
     };
 
     let res = diesel::update(jobs::table).set(&job).execute(conn)?;
     Ok(res)
+}
+
+pub fn update_jobs(updated_jobs: Vec<JobEntity>, conn: &PgConnection)
+                  -> Result<usize, AnyError>
+{
+
+    for job in updated_jobs {
+        println!("{:?}", job.id);
+    }
+
+    let old_jobs: Vec<JobEntity> = get_jobs(&conn)?;
+    
+    /*
+    let new_jobs_ids: Vec<Uuid> =  updated_jobs.into_iter().map(|job| job.id).rev().collect();
+
+    let old_jobs_ids: Vec<Uuid> = old_jobs.into_iter().map(|job| job.id).rev().collect();
+    */
+
+    Err(Box::from(ServusError::new("err")))
 }
 
 pub fn delete_job(uid: Uuid, conn: &PgConnection)

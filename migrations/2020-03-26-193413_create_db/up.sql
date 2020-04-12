@@ -33,7 +33,8 @@ create table jobs (
     target uuid not null references machines(id),   -- Pointer into 'machines' table.
     owner uuid not null references users(id),
     last_update timestamp,  -- Changes whenever any other column is changed. All scheduled instances are dropped and rescheduled.
-    send_email boolean not null      -- If true sends email to owner in case of failed execution.
+    send_email boolean not null,      -- If true sends email to owner in case of failed execution.
+    execute_now boolean not null default false
 );
 
 -- Represents log of executed tasks, with their exit status.

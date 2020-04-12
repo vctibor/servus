@@ -91,6 +91,27 @@ pub async fn update_job(job_id: web::Path<Uuid>,
     Ok(HttpResponse::Ok().finish())
 }
 
+pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
+                         pool: web::Data<DbPool>)
+                         -> Result<HttpResponse, Error>
+{
+    println!("Update jobs {:?}", jobs);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || job::update_jobs(jobs.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
 pub async fn delete_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {

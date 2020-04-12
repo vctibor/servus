@@ -41,7 +41,8 @@ var servus = angular.module('servus', ['ngRoute'])
     $scope.addJob = function() {
         $scope.temp_id = $scope.temp_id + 1;
         $scope.jobs.push({
-            "id": `temporary-id-${$scope.temp_id}`,
+            //"id": `temporary-id-${$scope.temp_id}`,
+            "id": "00000000-0000-0000-0000-000000000000",
             "name": "New job",
             "schedule": "* * * * *"
         });
@@ -51,6 +52,13 @@ var servus = angular.module('servus', ['ngRoute'])
         $scope.jobs = $scope.jobs.filter(function(job) {
             return job.id !== id;
         });
+    }
+
+    $scope.updateJobs = function() {
+        console.log("update jobs")
+        let data = JSON.stringify($scope.jobs);
+        $http.post("/api/job/bulk_update", data)
+            .then($scope.refresh());
     }
     
     $scope.hasChanged = function() {

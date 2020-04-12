@@ -116,7 +116,7 @@ pub fn get_log(offset: i64, size: i64, conn: &PgConnection)
             time: result.time,
             message: result.message,
             job: result.job,
-            job_name: job_name
+            job_name
         })
     }
 

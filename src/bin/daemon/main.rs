@@ -34,9 +34,7 @@ lazy_static! {
     
         let manager = ConnectionManager::<PgConnection>::new(database_url);
     
-        let pool = r2d2::Pool::builder().build(manager).expect("Failed to build connection pool.");
-
-        pool
+        r2d2::Pool::builder().build(manager).expect("Failed to build connection pool.")
     };
 }
 
@@ -81,7 +79,7 @@ fn exec_remote(username: &str, url: &str, port: i32, command: &str)
     channel.wait_close()?;
     channel.exit_status()?;
 
-    return Ok(output);
+    Ok(output)
 }
 
 /// Checks if job was already scheduled and compares update dates.
@@ -114,7 +112,8 @@ fn write_log_success(stdout: &str, msg: &str, job_id: Uuid) {
         success: true,
         time: Local::now().naive_local(),
         message: msg.to_owned(),
-        job: job_id
+        job: job_id,
+        job_name: None
     };
 
     write_log_entry(entry);
@@ -128,7 +127,8 @@ fn write_log_err(stderr: &str, msg: &str, job_id: Uuid) {
         success: false,
         time: Local::now().naive_local(),
         message: msg.to_owned(),
-        job: job_id
+        job: job_id,
+        job_name: None
     };
 
     write_log_entry(entry);
@@ -188,7 +188,8 @@ async fn main() -> Result<(), AnyError>
                             success: false,
                             time: Local::now().naive_local(),
                             message: format!("Failed to parse schedule {} for job {} ({}).", job.schedule, job.name, job_id),
-                            job: job_id
+                            job: job_id,
+                            job_name: None
                         };
 
                         let write_result = write_log(entry, &conn);
@@ -227,8 +228,8 @@ async fn main() -> Result<(), AnyError>
                     }));
     
                     scheduled_jobs.insert(job.id.unwrap(), ScheduledJob {
-                        scheduled_job_id: scheduled_job_id,
-                        last_update: job.last_update.unwrap().clone()
+                        scheduled_job_id,
+                        last_update: job.last_update.unwrap()
                     });
 
                     println!("Successfully scheduled job {} ({}) with ID {}.", job.name, job_id, scheduled_job_id);
