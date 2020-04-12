@@ -91,6 +91,25 @@ pub async fn update_machine(machine_id: web::Path<Uuid>,
     Ok(HttpResponse::Ok().finish())
 }
 
+pub async fn update_machines(machines: web::Json<Vec<MachineEntity>>,
+                             pool: web::Data<DbPool>)
+                             -> Result<HttpResponse, Error>
+{
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || machine::update_machines(machines.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
 pub async fn delete_machine(machine_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {

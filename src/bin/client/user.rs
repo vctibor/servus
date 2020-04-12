@@ -91,6 +91,26 @@ pub async fn update_user(user_id: web::Path<Uuid>,
     Ok(HttpResponse::Ok().finish())
 }
 
+
+pub async fn update_users(users: web::Json<Vec<UserEntity>>,
+                          pool: web::Data<DbPool>)
+                          -> Result<HttpResponse, Error>
+{
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || user::update_users(users.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
 pub async fn delete_user(user_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {

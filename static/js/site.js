@@ -67,13 +67,11 @@ var servus = angular.module('servus', ['ngRoute'])
 
     $scope.updateJobs = function() {
         let data = JSON.stringify($scope.jobs);
-        console.log(data);
         $http.post("/api/job/bulk_update", data)
             .then(function() {
-                console.log("success");
                 $scope.refresh();
             }, function() {
-                console.log("failure");
+                // failure
             });
     }
     
@@ -131,7 +129,7 @@ var servus = angular.module('servus', ['ngRoute'])
 
     $scope.addMachine = function() {
         $scope.machines.push({
-            "id": "00000000-0000-0000-0000-000000000000",
+            "id": uuidv4(),
             "name": "New machine"
         });
     }
@@ -140,6 +138,17 @@ var servus = angular.module('servus', ['ngRoute'])
         $scope.machines = $scope.machines.filter(function(machine) {
             return machine.id !== id;
         });
+    }
+
+    $scope.updateMachines = function() {
+        let data = JSON.stringify($scope.machines);
+        console.log(data);
+        $http.post("/api/machine/bulk_update", data)
+            .then(function() {
+                $scope.refresh();
+            }, function() {
+                // failure
+            });
     }
 
     $scope.hasChanged = function() {
@@ -193,7 +202,7 @@ var servus = angular.module('servus', ['ngRoute'])
 
     $scope.addUser = function() {
         $scope.users.push({
-            "id": "00000000-0000-0000-0000-000000000000",
+            "id": uuidv4(),
             "name": "New user",
             "email": ""
         });
@@ -203,6 +212,16 @@ var servus = angular.module('servus', ['ngRoute'])
         $scope.users = $scope.users.filter(function(user) {
             return user.id !== id;
         });
+    }
+
+    $scope.updateUsers = function() {
+        let data = JSON.stringify($scope.users);
+        $http.post("/api/user/bulk_update", data)
+            .then(function() {
+                $scope.refresh();
+            }, function() {
+                // failure
+            });
     }
 
     $scope.hasChanged = function() {

@@ -9,7 +9,7 @@
         <span class="fa fa-repeat"></span> Refresh
     </button>
 
-    <button class="btn save_btn" ng-disabled="!hasChanged()">
+    <button class="btn save_btn" ng-click="updateMachines()" ng-disabled="!hasChanged()">
         <span class="fa fa-check"></span> Save changes
     </button>
 
@@ -18,6 +18,7 @@
     <table>
         <tr>
             <th></th>
+            <th></th>
             <th>Name</th>
             <th>Username</th>
             <th>Address</th>
@@ -25,7 +26,14 @@
         </tr>
         <tr ng-repeat="machine in machines" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
             <td>
-                <button class="fa fa-times in_row_btn" ng-click="deleteMachine(machine.id)" title="Delete machine"></button>
+                <button class="in_row_btn" title="Ping machine">
+                    <span class="fa fa-arrow-circle-right"></span>
+                </button>
+            </td>
+            <td>
+                <button class="in_row_btn" ng-click="deleteMachine(machine.id)" title="Delete machine">
+                    <span class="fa fa-times"></span>
+                </button>
             </td>
             <td>
                 <input ng-model="machine.name" class="table_input">
@@ -37,7 +45,7 @@
                 <input ng-model="machine.url" class="table_input">
             </td>
             <td>
-                <input ng-model="machine.port" class="table_input">
+                <input type="number" ng-model="machine.port" class="table_input">
             </td>
         </tr>
     </table>

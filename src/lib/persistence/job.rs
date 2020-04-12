@@ -19,8 +19,7 @@ struct Job {
     pub target: Uuid,
     pub owner: Uuid,
     pub last_update: Option<NaiveDateTime>,
-    pub send_email: bool,
-    pub execute_now: bool
+    pub send_email: bool
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -32,8 +31,7 @@ struct NewJob {
     pub target: Uuid,
     pub owner: Uuid,
     pub last_update: Option<NaiveDateTime>,
-    pub send_email: bool,
-    pub execute_now: bool
+    pub send_email: bool
 }
 
 pub fn add_job(job: JobEntity, conn: &PgConnection)
@@ -53,8 +51,7 @@ pub fn add_job(job: JobEntity, conn: &PgConnection)
         target: target_id,
         owner: owner_id,
         last_update: Some(last_update_dt),
-        send_email: job.send_email,
-        execute_now: false
+        send_email: job.send_email
     };
 
     diesel::insert_into(jobs)
@@ -168,8 +165,7 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
         target: target_id,
         owner: owner_id,
         last_update: Some(last_update_dt),
-        send_email: job.send_email,
-        execute_now: false
+        send_email: job.send_email
     };
 
     let res = diesel::update(jobs::table)
@@ -195,7 +191,7 @@ pub fn update_jobs(mut updated_jobs: Vec<JobEntity>, conn: &PgConnection)
         else if let Some(updated_job_id) = updated_job.id
         {
             if old_jobs_ids.contains(&updated_job_id) {
-                // update_job(updated_job, updated_job_id, &conn)?;
+                update_job(updated_job, updated_job_id, &conn)?;
             } else {
                 add_job(updated_job, &conn)?;
             }

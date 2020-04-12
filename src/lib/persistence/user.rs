@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use crate::entity::error::AnyError;
 use crate::entity::User as UserEntity;
 use crate::schema::users;
 use crate::schema::users::dsl::*;
@@ -84,7 +85,40 @@ pub fn update_user(user: UserEntity, user_id: Uuid, conn: &PgConnection)
         email: user.email
     };
 
-    diesel::update(users::table).set(&user).execute(conn)
+    diesel::update(users::table).filter(id.eq(user_id)).set(&user).execute(conn)
+}
+
+
+pub fn update_users(mut updated_users: Vec<UserEntity>, conn: &PgConnection)
+                  -> Result<(), AnyError>
+{    
+    let old_users: Vec<UserEntity> = get_users(&conn)?;
+    let old_users_ids: Vec<Uuid> = old_users.into_iter().map(|user| user.id.unwrap()).rev().collect();
+
+    let mut users_to_delete = old_users_ids.clone();
+
+    while let Some(updated_user) = updated_users.pop() {
+        if updated_user.id.is_none() || updated_user.id == Some(Uuid::nil())
+        {
+            add_user(updated_user, &conn)?;
+        }
+        else if let Some(updated_user_id) = updated_user.id
+        {
+            if old_users_ids.contains(&updated_user_id) {
+                update_user(updated_user, updated_user_id, &conn)?;
+            } else {
+                add_user(updated_user, &conn)?;
+            }
+
+            users_to_delete.retain(|&item| item != updated_user_id);
+        }
+    }
+
+    for delete_id in users_to_delete {
+        delete_user(delete_id, &conn)?;
+    }
+
+    Ok(())
 }
 
 pub fn delete_user(uid: Uuid, conn: &PgConnection)

@@ -9,7 +9,6 @@ table! {
         owner -> Uuid,
         last_update -> Nullable<Timestamp>,
         send_email -> Bool,
-        execute_now -> Bool,
     }
 }
 

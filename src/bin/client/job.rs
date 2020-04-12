@@ -95,8 +95,6 @@ pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
                          pool: web::Data<DbPool>)
                          -> Result<HttpResponse, Error>
 {
-    // println!("Update jobs {:?}", jobs);
-
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()

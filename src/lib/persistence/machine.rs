@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use crate::entity::AnyError;
 use crate::entity::Machine as MachineEntity;
 use crate::schema::machines;
 use crate::schema::machines::dsl::*;
@@ -98,7 +99,39 @@ pub fn update_machine(machine: MachineEntity, machine_id: Uuid, conn: &PgConnect
         port: machine.port
     };
 
-    diesel::update(machines::table).set(&machine).execute(conn)
+    diesel::update(machines::table).filter(id.eq(machine_id)).set(&machine).execute(conn)
+}
+
+pub fn update_machines(mut updated_machines: Vec<MachineEntity>, conn: &PgConnection)
+                  -> Result<(), AnyError>
+{    
+    let old_machines: Vec<MachineEntity> = get_machines(&conn)?;
+    let old_machines_ids: Vec<Uuid> = old_machines.into_iter().map(|machine| machine.id.unwrap()).rev().collect();
+
+    let mut machines_to_delete = old_machines_ids.clone();
+
+    while let Some(updated_machine) = updated_machines.pop() {
+        if updated_machine.id.is_none() || updated_machine.id == Some(Uuid::nil())
+        {
+            add_machine(updated_machine, &conn)?;
+        }
+        else if let Some(updated_machine_id) = updated_machine.id
+        {
+            if old_machines_ids.contains(&updated_machine_id) {
+                update_machine(updated_machine, updated_machine_id, &conn)?;
+            } else {
+                add_machine(updated_machine, &conn)?;
+            }
+
+            machines_to_delete.retain(|&item| item != updated_machine_id);
+        }
+    }
+
+    for delete_id in machines_to_delete {
+        delete_machine(delete_id, &conn)?;
+    }
+
+    Ok(())
 }
 
 pub fn delete_machine(uid: Uuid, conn: &PgConnection)
