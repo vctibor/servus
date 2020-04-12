@@ -172,27 +172,43 @@ pub fn update_job(job: JobEntity, job_id: Uuid, conn: &PgConnection)
         execute_now: false
     };
 
-    let res = diesel::update(jobs::table).set(&job).execute(conn)?;
+    let res = diesel::update(jobs::table)
+        .filter(id.eq(job_id))    
+        .set(&job).execute(conn)?;
+        
     Ok(res)
 }
 
-pub fn update_jobs(updated_jobs: Vec<JobEntity>, conn: &PgConnection)
-                  -> Result<usize, AnyError>
-{
+pub fn update_jobs(mut updated_jobs: Vec<JobEntity>, conn: &PgConnection)
+                  -> Result<(), AnyError>
+{    
+    let old_jobs: Vec<JobEntity> = get_jobs(&conn)?;
+    let old_jobs_ids: Vec<Uuid> = old_jobs.into_iter().map(|job| job.id.unwrap()).rev().collect();
 
-    for job in updated_jobs {
-        println!("{:?}", job.id);
+    let mut jobs_to_delete = old_jobs_ids.clone();
+
+    while let Some(updated_job) = updated_jobs.pop() {
+        if updated_job.id.is_none() || updated_job.id == Some(Uuid::nil())
+        {
+            add_job(updated_job, &conn)?;
+        }
+        else if let Some(updated_job_id) = updated_job.id
+        {
+            if old_jobs_ids.contains(&updated_job_id) {
+                // update_job(updated_job, updated_job_id, &conn)?;
+            } else {
+                add_job(updated_job, &conn)?;
+            }
+
+            jobs_to_delete.retain(|&item| item != updated_job_id);
+        }
     }
 
-    let old_jobs: Vec<JobEntity> = get_jobs(&conn)?;
-    
-    /*
-    let new_jobs_ids: Vec<Uuid> =  updated_jobs.into_iter().map(|job| job.id).rev().collect();
+    for delete_id in jobs_to_delete {
+        delete_job(delete_id, &conn)?;
+    }
 
-    let old_jobs_ids: Vec<Uuid> = old_jobs.into_iter().map(|job| job.id).rev().collect();
-    */
-
-    Err(Box::from(ServusError::new("err")))
+    Ok(())
 }
 
 pub fn delete_job(uid: Uuid, conn: &PgConnection)

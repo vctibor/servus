@@ -10,7 +10,7 @@ type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub async fn list_jobs(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    println!("List jobs.");
+    // println!("List jobs.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
@@ -24,7 +24,7 @@ pub async fn list_jobs(pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
 
-    println!("{:?}", jobs);
+    // println!("{:?}", jobs);
 
     Ok(HttpResponse::Ok().json(jobs))
 }
@@ -95,7 +95,7 @@ pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
                          pool: web::Data<DbPool>)
                          -> Result<HttpResponse, Error>
 {
-    println!("Update jobs {:?}", jobs);
+    // println!("Update jobs {:?}", jobs);
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);

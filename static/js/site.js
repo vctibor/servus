@@ -36,16 +36,27 @@ var servus = angular.module('servus', ['ngRoute'])
             });
     }
 
-    $scope.temp_id = 0;
-
     $scope.addJob = function() {
-        $scope.temp_id = $scope.temp_id + 1;
+        let id = uuidv4();
         $scope.jobs.push({
-            //"id": `temporary-id-${$scope.temp_id}`,
-            "id": "00000000-0000-0000-0000-000000000000",
+            "id": id,
             "name": "New job",
-            "schedule": "* * * * *"
+            "schedule": "* * * * *",
+            "code": "",
+            "send_email": false,
+            "last_status": false,
+            "target": {
+                "name": "",
+                "username": "",
+                "url": "",
+                "port": 22
+            },
+            "owner": {
+                "name": "",
+                "email": ""
+            }
         });
+        $scope.showModal = id;
     }
 
     $scope.deleteJob = function(id) {
@@ -55,10 +66,15 @@ var servus = angular.module('servus', ['ngRoute'])
     }
 
     $scope.updateJobs = function() {
-        console.log("update jobs")
         let data = JSON.stringify($scope.jobs);
+        console.log(data);
         $http.post("/api/job/bulk_update", data)
-            .then($scope.refresh());
+            .then(function() {
+                console.log("success");
+                $scope.refresh();
+            }, function() {
+                console.log("failure");
+            });
     }
     
     $scope.hasChanged = function() {

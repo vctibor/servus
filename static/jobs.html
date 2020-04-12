@@ -81,7 +81,6 @@
             </label>
         </td>
 
-
         <td>
             <div id="job.id" class="modal" ng-show="showModal == job.id">
                 <div class="modal-content">
@@ -94,6 +93,22 @@
                     <h3 class="modal_text">Description</h3>
                     
                     <input class="detail_input detail_input_description" ng-model="job.description">
+
+                    <!--
+                    <h3 class="modal_text">Target</h3>
+
+                    <select ng-model="job.target.id" class="jobs_select">
+                        <option ng-repeat="machine in machines" value="{{machine.id}}">{{machine.name}}</option>
+                    </select>
+
+                    <h3 class="modal_text">Owner</h3>
+
+                    <select ng-model="job.owner.id" class="jobs_select">
+                        <option ng-repeat="user in users" value="{{user.id}}">{{user.name}}</option>
+                    </select>
+
+                    <h3 class="modal_text">Send email</h3>
+                    -->
                     
                     <h3 class="modal_text">Schedule</h3>
                     
@@ -104,7 +119,7 @@
                     <div class="detail_code_wrapper">
                         <textarea spellcheck="false" class="detail_input_code" ng-model="job.code">
                     </div>
-                </div>        
+                </div>
             </div>
         </td>
 

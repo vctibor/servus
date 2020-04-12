@@ -45,7 +45,6 @@ table! {
 
 joinable!(jobs -> machines (target));
 joinable!(jobs -> users (owner));
-joinable!(tx_log -> jobs (job));
 
 allow_tables_to_appear_in_same_query!(
     jobs,

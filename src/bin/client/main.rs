@@ -7,7 +7,7 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
-use actix_web::{middleware, App, HttpServer};
+use actix_web::{App, HttpServer};
 use actix_web::web::{scope, resource, get, post};
 use actix_files as fs;
 
@@ -34,9 +34,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            // .wrap(middleware::Logger::default())
             .data(pool.clone())
-
             .service(
                 scope("/api")
                     .service(scope("/job")

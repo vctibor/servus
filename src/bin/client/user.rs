@@ -10,7 +10,7 @@ type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub async fn list_users(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    println!("List users.");
+    // println!("List users.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
@@ -24,7 +24,7 @@ pub async fn list_users(pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
 
-    println!("{:?}", users);
+    // println!("{:?}", users);
 
     Ok(HttpResponse::Ok().json(users))
 }
