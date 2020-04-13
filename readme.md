@@ -45,7 +45,9 @@ ssh-add -l
 
 You have to set two environment variables:
 
+`SERVUS_DATABASE_URL` should contain connection string to PostgreSQL database.
 
+`SERVUS_LISTEN_ON` should contain IP address and port on which should Servus web interface listen.
 
 
 ## Tech stack
