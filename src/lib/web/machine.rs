@@ -1,87 +1,84 @@
-use servus::persistence::*;
-use servus::entity::Job as JobEntity;
+use crate::persistence::*;
+use crate::entity::Machine as MachineEntity;
+use crate::DbPool;
 use uuid::Uuid;
 use actix_web::{web, Error, HttpResponse};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
 
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
-pub async fn list_jobs(pool: web::Data<DbPool>)
+pub async fn list_machines(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    // println!("List jobs.");
+    // println!("List machines.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    let jobs = web::block(move || job::get_jobs(&conn))
+    let machines = web::block(move || machine::get_machines(&conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
         })?;
 
-    // println!("{:?}", jobs);
+    // println!("{:?}", machines);
 
-    Ok(HttpResponse::Ok().json(jobs))
+    Ok(HttpResponse::Ok().json(machines))
 }
 
-pub async fn get_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
+pub async fn get_machine(machine_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                   -> Result<HttpResponse, Error>
 {
-    println!("Get job.");
+    println!("Get machine.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
     
-    let job = web::block(move || job::get_job(job_uid.into_inner(), &conn))
+    let machine = web::block(move || machine::get_machine(machine_uid.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
         })?;
 
-    Ok(HttpResponse::Ok().json(job))
+    Ok(HttpResponse::Ok().json(machine))
 }
 
-pub async fn create_job(job: web::Json<JobEntity>, pool: web::Data<DbPool>)
+pub async fn create_machine(machine: web::Json<MachineEntity>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Create job {:?}", job);
+    println!("Create machine {:?}", machine);
     
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    let job = job::add_job(job.into_inner(), &conn)
+    let machine = machine::add_machine(machine.into_inner(), &conn)
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
         })?;
 
-    Ok(HttpResponse::Ok().json(job))
+    Ok(HttpResponse::Ok().json(machine))
 }
 
-pub async fn update_job(job_id: web::Path<Uuid>,
-                     job: web::Json<JobEntity>,
+pub async fn update_machine(machine_id: web::Path<Uuid>,
+                     machine: web::Json<MachineEntity>,
                      pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Update job {:?}", job);
+    println!("Update machine {:?}", machine);
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    web::block(move || job::update_job(job.into_inner(),
-                            job_id.into_inner(), &conn))
+    web::block(move || machine::update_machine(machine.into_inner(),
+                            machine_id.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -91,16 +88,16 @@ pub async fn update_job(job_id: web::Path<Uuid>,
     Ok(HttpResponse::Ok().finish())
 }
 
-pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
-                         pool: web::Data<DbPool>)
-                         -> Result<HttpResponse, Error>
+pub async fn update_machines(machines: web::Json<Vec<MachineEntity>>,
+                             pool: web::Data<DbPool>)
+                             -> Result<HttpResponse, Error>
 {
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    web::block(move || job::update_jobs(jobs.into_inner(), &conn))
+    web::block(move || machine::update_machines(machines.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -110,17 +107,17 @@ pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
     Ok(HttpResponse::Ok().finish())
 }
 
-pub async fn delete_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
+pub async fn delete_machine(machine_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Delete job.");
+    println!("Delete machine.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    web::block(move || job::delete_job(job_uid.into_inner(), &conn))
+    web::block(move || machine::delete_machine(machine_uid.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);

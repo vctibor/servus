@@ -1,6 +1,6 @@
-use servus::persistence::*;
+use crate::persistence::*;
+use crate::DbPool;
 use actix_web::{web, Error, HttpResponse, HttpRequest};
-use servus::DbPool;
 
 pub async fn get_log_entries(req: HttpRequest, pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>

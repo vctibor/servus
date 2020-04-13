@@ -9,3 +9,4 @@ pub mod schema;
 pub mod entity;
 pub mod persistence;
 pub mod execution;
+pub mod web;

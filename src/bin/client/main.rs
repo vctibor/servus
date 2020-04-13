@@ -1,8 +1,3 @@
-mod user;
-mod machine;
-mod job;
-mod log;
-
 use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
@@ -10,6 +5,8 @@ use dotenv::dotenv;
 use actix_web::{App, HttpServer};
 use actix_web::web::{scope, resource, get, post};
 use actix_files as fs;
+
+use servus::web::*;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

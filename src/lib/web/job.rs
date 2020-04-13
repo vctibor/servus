@@ -1,87 +1,84 @@
-use servus::persistence::*;
-use servus::entity::User as UserEntity;
+use crate::persistence::*;
+use crate::entity::Job as JobEntity;
+use crate::DbPool;
 use uuid::Uuid;
 use actix_web::{web, Error, HttpResponse};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
 
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
-pub async fn list_users(pool: web::Data<DbPool>)
+pub async fn list_jobs(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    // println!("List users.");
+    // println!("List jobs.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    let users = web::block(move || user::get_users(&conn))
+    let jobs = web::block(move || job::get_jobs(&conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
         })?;
 
-    // println!("{:?}", users);
+    // println!("{:?}", jobs);
 
-    Ok(HttpResponse::Ok().json(users))
+    Ok(HttpResponse::Ok().json(jobs))
 }
 
-pub async fn get_user(user_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
+pub async fn get_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                   -> Result<HttpResponse, Error>
 {
-    println!("Get user.");
+    println!("Get job.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
     
-    let user = web::block(move || user::get_user(user_uid.into_inner(), &conn))
+    let job = web::block(move || job::get_job(job_uid.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
         })?;
 
-    Ok(HttpResponse::Ok().json(user))
+    Ok(HttpResponse::Ok().json(job))
 }
 
-pub async fn create_user(user: web::Json<UserEntity>, pool: web::Data<DbPool>)
+pub async fn create_job(job: web::Json<JobEntity>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Create user {:?}", user);
+    println!("Create job {:?}", job);
     
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    let user = user::add_user(user.into_inner(), &conn)
+    let job = job::add_job(job.into_inner(), &conn)
         .map_err(|e| {
             eprintln!("{}", e);
             HttpResponse::InternalServerError().finish()
         })?;
 
-    Ok(HttpResponse::Ok().json(user))
+    Ok(HttpResponse::Ok().json(job))
 }
 
-pub async fn update_user(user_id: web::Path<Uuid>,
-                     user: web::Json<UserEntity>,
+pub async fn update_job(job_id: web::Path<Uuid>,
+                     job: web::Json<JobEntity>,
                      pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Update user {:?}", user);
+    println!("Update job {:?}", job);
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    web::block(move || user::update_user(user.into_inner(),
-                            user_id.into_inner(), &conn))
+    web::block(move || job::update_job(job.into_inner(),
+                            job_id.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -91,17 +88,16 @@ pub async fn update_user(user_id: web::Path<Uuid>,
     Ok(HttpResponse::Ok().finish())
 }
 
-
-pub async fn update_users(users: web::Json<Vec<UserEntity>>,
-                          pool: web::Data<DbPool>)
-                          -> Result<HttpResponse, Error>
+pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
+                         pool: web::Data<DbPool>)
+                         -> Result<HttpResponse, Error>
 {
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    web::block(move || user::update_users(users.into_inner(), &conn))
+    web::block(move || job::update_jobs(jobs.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -111,17 +107,17 @@ pub async fn update_users(users: web::Json<Vec<UserEntity>>,
     Ok(HttpResponse::Ok().finish())
 }
 
-pub async fn delete_user(user_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
+pub async fn delete_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
-    println!("Delete user.");
+    println!("Delete job.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
 
-    web::block(move || user::delete_user(user_uid.into_inner(), &conn))
+    web::block(move || job::delete_job(job_uid.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
