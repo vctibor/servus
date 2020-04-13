@@ -5,11 +5,34 @@ use dotenv::dotenv;
 use actix_web::{App, HttpServer};
 use actix_web::web::{scope, resource, get, post};
 use actix_files as fs;
-
 use servus::web::*;
+use std::thread;
+use std::time::Duration;
+use servus::execution::*;
+
+/// Number of milliseconds to sleep between every job scheduler check.
+/// Perhaps should be configurable.
+const REFRESH_RATE: u64 = 500;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+
+    thread::spawn(|| {
+        
+        let mut job_scheduler = ServusJobScheduler::new();
+
+        println!("Started daemon.");
+    
+        loop {
+            
+            job_scheduler.schedule_jobs();
+    
+            job_scheduler.tick();
+    
+            thread::sleep(Duration::from_millis(REFRESH_RATE));
+        }
+
+    });
 
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
