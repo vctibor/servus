@@ -1,9 +1,6 @@
 use servus::persistence::*;
 use actix_web::{web, Error, HttpResponse, HttpRequest};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
-
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+use servus::DbPool;
 
 pub async fn get_log_entries(req: HttpRequest, pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>

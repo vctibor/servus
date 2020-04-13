@@ -1465,7 +1465,6 @@ dependencies = [
  "env_logger",
  "futures",
  "job_scheduler",
- "lazy_static",
  "r2d2",
  "serde",
  "serde_derive",
