@@ -1,0 +1,11 @@
+[Unit]
+Description=Servus
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=servus
+
+[Install]
+WantedBy=multi-user.target

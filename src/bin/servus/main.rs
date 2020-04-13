@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate diesel_migrations;
+
 use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
@@ -9,17 +12,40 @@ use servus::web::*;
 use std::thread;
 use std::time::Duration;
 use servus::execution::*;
+use diesel_migrations::*;
+
+embed_migrations!("migrations");
 
 /// Number of milliseconds to sleep between every job scheduler check.
-/// Perhaps should be configurable.
 const REFRESH_RATE: u64 = 500;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
+    dotenv().ok();
+
+    let database_url = env::var("SERVUS_DATABASE_URL")
+        .expect("SERVUS_DATABASE_URL must be set.");
+
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+
+    let pool = r2d2::Pool::builder()
+        .build(manager)
+        .expect("Failed to create pool.");
+
+    let conn = pool.get().expect("Failed to obtain connection from pool.");
+
+    embedded_migrations::run(&conn)
+        .expect("Failed to run migrations to current version of database schema.");
+
+    let bind = env::var("SERVUS_LISTEN_ON")
+        .expect("SERVUS_LISTEN_ON must be set.");
+
+    let daemon_pool = pool.clone();
+
     thread::spawn(|| {
         
-        let mut job_scheduler = ServusJobScheduler::new();
+        let mut job_scheduler = ServusJobScheduler::new(daemon_pool);
 
         println!("Started daemon.");
     
@@ -33,22 +59,6 @@ async fn main() -> std::io::Result<()> {
         }
 
     });
-
-    std::env::set_var("RUST_LOG", "actix_web=info");
-    env_logger::init();
-
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-
-    let manager = ConnectionManager::<PgConnection>::new(database_url);
-
-    let pool = r2d2::Pool::builder()
-        .build(manager)
-        .expect("Failed to create pool.");
-
-    let bind = "127.0.0.1:8080";
 
     println!("Starting server at: {}", &bind);
 

@@ -13,11 +13,6 @@ use std::collections::HashMap;
 use job_scheduler::{JobScheduler, Job};
 use chrono::prelude::*;
 use diesel::pg::PgConnection;
-use dotenv::dotenv;
-use std::env;
-use diesel::r2d2::{self, ConnectionManager};
-
-
 
 /// Represents scheduled job
 struct ScheduledJob {
@@ -40,6 +35,7 @@ pub struct ServusJobScheduler {
 
 impl ServusJobScheduler {
 
+    /*
     pub fn new() -> ServusJobScheduler {
 
         dotenv().ok();
@@ -51,6 +47,16 @@ impl ServusJobScheduler {
         let pool = r2d2::Pool::builder()
             .build(manager)
             .expect("Failed to create pool.");
+
+        ServusJobScheduler {
+            pool,
+            job_scheduler: JobScheduler::new(),
+            scheduled_jobs: HashMap::new()
+        }
+    }
+    */
+
+    pub fn new(pool: DbPool) -> ServusJobScheduler {
 
         ServusJobScheduler {
             pool,

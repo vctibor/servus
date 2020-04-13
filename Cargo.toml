@@ -19,14 +19,18 @@ actix-web = "2.0"
 actix-rt = "1.0"
 actix-files = "0.2"
 diesel = { version = "1.4", features = ["postgres", "uuidv07", "r2d2", "chrono"] }
+diesel_migrations = "1.4"
 dotenv = "0.9"
 r2d2 = "0.8"
 futures = "0.3"
 env_logger = "0.6"
 chrono = { version = "0.4", features = ["serde"] }
-
 ssh2 = "0.6"
 job_scheduler = "1.1"
 tokio = { version = "0.2", features = ["full"] }
 
-# lazy_static = "1.4"
+[package.metadata.deb]
+depends = "$auto"
+assets = [
+    ["servus.service", "/lib/systemd/system/servus.service", "644"], 
+]

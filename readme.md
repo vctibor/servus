@@ -43,15 +43,9 @@ ssh-add -l
 
 ## Deployment
 
-`servus` consists of two separate processes:
+You have to set two environment variables:
 
-### client
 
-Implements web interface.
-
-### daemon
-
-This process is responsible for actual execution of scheduled jobs.
 
 
 ## Tech stack
