@@ -5,7 +5,7 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, middleware};
 use actix_web::web::{scope, resource, get, post};
 use actix_files as fs;
 use servus::web::*;
@@ -21,6 +21,9 @@ const REFRESH_RATE: u64 = 500;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+
+    std::env::set_var("RUST_LOG", "actix_web=info");
+    env_logger::init();
 
     dotenv().ok();
 
@@ -64,6 +67,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(middleware::Logger::default())
             .data(pool.clone())
             .service(
                 scope("/api")

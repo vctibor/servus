@@ -8,3 +8,5 @@ servus.bak2/target/**
 .env
 
 create_data.sql
+debian
+**.deb
