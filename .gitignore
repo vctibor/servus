@@ -10,3 +10,5 @@ servus.bak2/target/**
 create_data.sql
 debian
 **.deb
+
+Cargo.lock

@@ -8,13 +8,18 @@ use dotenv::dotenv;
 use actix_web::{App, HttpServer, middleware};
 use actix_web::web::{scope, resource, get, post};
 use actix_files as fs;
+use actix_web_static_files;
+use actix_web_static_files::ResourceFiles;
 use servus::web::*;
 use std::thread;
 use std::time::Duration;
+use std::collections::HashMap;
 use servus::execution::*;
 use diesel_migrations::*;
 
 embed_migrations!("migrations");
+
+include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 
 /// Number of milliseconds to sleep between every job scheduler check.
 const REFRESH_RATE: u64 = 500;
@@ -66,6 +71,10 @@ async fn main() -> std::io::Result<()> {
     println!("Starting server at: {}", &bind);
 
     HttpServer::new(move || {
+        
+        // load embedded static files
+        let generated = generate();
+
         App::new()
             .wrap(middleware::Logger::default())
             .data(pool.clone())
@@ -95,6 +104,7 @@ async fn main() -> std::io::Result<()> {
                     .service(scope("/log")
                         .service(resource("{offset}/{entries}").route(get().to(log::get_log_entries))))
             )
+            .service(ResourceFiles::new("/", generated))
             .service(fs::Files::new("/", "./static/").index_file("index.html"))
         })
         .bind(&bind)?
