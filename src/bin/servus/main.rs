@@ -5,9 +5,10 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
-use actix_web::{App, HttpServer, middleware};
+use actix_web::{App, HttpServer, middleware, Result};
 use actix_web::web::{scope, resource, get, post};
 use actix_files as fs;
+use actix_files::NamedFile;
 use actix_web_static_files;
 use actix_web_static_files::ResourceFiles;
 use servus::web::*;
@@ -17,12 +18,17 @@ use std::collections::HashMap;
 use servus::execution::*;
 use diesel_migrations::*;
 
+
 embed_migrations!("migrations");
 
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 
 /// Number of milliseconds to sleep between every job scheduler check.
 const REFRESH_RATE: u64 = 500;
+
+async fn index() -> Result<NamedFile> {
+    Ok(NamedFile::open("./static/index.html")?)
+}
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -77,6 +83,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .wrap(middleware::Logger::default())
+            .wrap(middleware::NormalizePath)
             .data(pool.clone())
             .service(
                 scope("/api")
@@ -104,6 +111,14 @@ async fn main() -> std::io::Result<()> {
                     .service(scope("/log")
                         .service(resource("{offset}/{entries}").route(get().to(log::get_log_entries))))
             )
+            .service(resource("/jobs").route(get().to(index)))
+            .service(resource("/jobs/").route(get().to(index)))
+            .service(resource("/machines").route(get().to(index)))
+            .service(resource("/machines/").route(get().to(index)))
+            .service(resource("/users").route(get().to(index)))
+            .service(resource("/users/").route(get().to(index)))
+            .service(resource("/log").route(get().to(index)))
+            .service(resource("/log/").route(get().to(index)))
             .service(ResourceFiles::new("/", generated))
             .service(fs::Files::new("/", "./static/").index_file("index.html"))
         })
