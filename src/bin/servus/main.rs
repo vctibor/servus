@@ -5,10 +5,8 @@ use std::env;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
-use actix_web::{App, HttpServer, middleware, Result};
+use actix_web::{App, HttpServer, middleware};
 use actix_web::web::{scope, resource, get, post};
-use actix_files as fs;
-use actix_files::NamedFile;
 use actix_web_static_files;
 use actix_web_static_files::ResourceFiles;
 use servus::web::*;
@@ -17,6 +15,8 @@ use std::time::Duration;
 use std::collections::HashMap;
 use servus::execution::*;
 use diesel_migrations::*;
+use actix_web::HttpResponse;
+use actix_http::http;
 
 
 embed_migrations!("migrations");
@@ -26,8 +26,8 @@ include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 /// Number of milliseconds to sleep between every job scheduler check.
 const REFRESH_RATE: u64 = 500;
 
-async fn index() -> Result<NamedFile> {
-    Ok(NamedFile::open("./static/index.html")?)
+async fn redirect_to_index() -> HttpResponse {
+    HttpResponse::PermanentRedirect().header(http::header::LOCATION, "/").finish()
 }
 
 #[actix_rt::main]
@@ -111,16 +111,15 @@ async fn main() -> std::io::Result<()> {
                     .service(scope("/log")
                         .service(resource("{offset}/{entries}").route(get().to(log::get_log_entries))))
             )
-            .service(resource("/jobs").route(get().to(index)))
-            .service(resource("/jobs/").route(get().to(index)))
-            .service(resource("/machines").route(get().to(index)))
-            .service(resource("/machines/").route(get().to(index)))
-            .service(resource("/users").route(get().to(index)))
-            .service(resource("/users/").route(get().to(index)))
-            .service(resource("/log").route(get().to(index)))
-            .service(resource("/log/").route(get().to(index)))
+            .service(resource("/jobs").route(get().to(redirect_to_index)))
+            .service(resource("/jobs/").route(get().to(redirect_to_index)))
+            .service(resource("/machines").route(get().to(redirect_to_index)))
+            .service(resource("/machines/").route(get().to(redirect_to_index)))
+            .service(resource("/users").route(get().to(redirect_to_index)))
+            .service(resource("/users/").route(get().to(redirect_to_index)))
+            .service(resource("/log").route(get().to(redirect_to_index)))
+            .service(resource("/log/").route(get().to(redirect_to_index)))
             .service(ResourceFiles::new("/", generated))
-            .service(fs::Files::new("/", "./static/").index_file("index.html"))
         })
         .bind(&bind)?
         .run()

@@ -2,6 +2,8 @@
 
 echo "This script builds .deb package of Servus inside docker image rust_builder"
 
+rm servus.deb
+
 docker rm -f servus_builder
 
 docker run -di --name servus_builder --rm rust_builder bash

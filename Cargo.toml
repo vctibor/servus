@@ -22,6 +22,7 @@ serde_derive = "1.0"
 actix-web = "2.0"
 actix-rt = "1.0"
 actix-files = "0.2"
+actix-http = "1.0.1"
 actix-web-static-files = "2.0"
 diesel = { version = "1.4", features = ["postgres", "uuidv07", "r2d2", "chrono"] }
 diesel_migrations = "1.4"
