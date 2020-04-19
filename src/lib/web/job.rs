@@ -1,6 +1,7 @@
 use crate::persistence::*;
 use crate::entity::Job as JobEntity;
 use crate::DbPool;
+use crate::execution::exec_remote;
 use uuid::Uuid;
 use actix_web::{web, Error, HttpResponse};
 
@@ -124,5 +125,37 @@ pub async fn delete_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
     
+    Ok(HttpResponse::Ok().finish())
+}
+
+
+pub async fn execute(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
+                  -> Result<HttpResponse, Error>
+{
+    println!("Execute job {}", job_uid);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+    
+    let job = web::block(move || job::get_job(job_uid.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?
+        .ok_or_else(|| HttpResponse::InternalServerError().finish())?;
+
+    let username = job.target.username.clone();
+    let url = job.target.url.clone();
+    let port = job.target.port;
+    let command = job.code.clone();
+    let job_name = job.name.clone();
+
+    let execution_res = exec_remote(&username, &url, port, &command);
+
+    println!("Execution result {:?}", execution_res);
+
     Ok(HttpResponse::Ok().finish())
 }

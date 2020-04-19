@@ -32,6 +32,8 @@ async fn redirect_to_index() -> HttpResponse {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+    
+    servus::execution::start_ssh_agent()?;
 
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
@@ -56,6 +58,7 @@ async fn main() -> std::io::Result<()> {
         .expect("SERVUS_LISTEN_ON must be set.");
 
     let daemon_pool = pool.clone();
+
 
     thread::spawn(|| {
         
@@ -93,7 +96,8 @@ async fn main() -> std::io::Result<()> {
                         .service(resource("/create").route(post().to(job::create_job)))
                         .service(resource("/update/{job_id}").route(post().to(job::update_job)))
                         .service(resource("/bulk_update").route(post().to(job::update_jobs)))
-                        .service(resource("/delete/{job_id}").route(post().to(job::delete_job))))
+                        .service(resource("/delete/{job_id}").route(post().to(job::delete_job)))
+                        .service(resource("/exec/{job_id}").route(get().to(job::execute))))
                     .service(scope("/machine")
                         .service(resource("/list").route(get().to(machine::list_machines)))
                         .service(resource("/get/{machine_id}").route(get().to(machine::get_machine)))
@@ -110,6 +114,7 @@ async fn main() -> std::io::Result<()> {
                         .service(resource("/delete/{user_id}").route(post().to(user::delete_user))))
                     .service(scope("/log")
                         .service(resource("{offset}/{entries}").route(get().to(log::get_log_entries))))
+                    
             )
             .service(resource("/jobs").route(get().to(redirect_to_index)))
             .service(resource("/jobs/").route(get().to(redirect_to_index)))

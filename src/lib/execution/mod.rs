@@ -65,15 +65,16 @@ impl ServusJobScheduler {
         }
     }
 
-    pub fn schedule_jobs(&mut self) {
-        let conn = self.pool.get().unwrap();
-        let jobs = get_jobs(&conn).unwrap();
+    pub fn schedule_jobs(&mut self) -> Result<(), AnyError> {
+        let conn = self.pool.get()?;
+        let jobs = get_jobs(&conn)?;
         for job in jobs {
             self.schedule_job(&job);
         }
+        Ok(())
     }
 
-    pub fn schedule_job(&mut self, job: &JobEntity) {
+    pub fn schedule_job(&mut self, job: &JobEntity) -> Result<(), AnyError> {
         
         if let Some(job_id) = job.id {
 
@@ -91,7 +92,7 @@ impl ServusJobScheduler {
 
                 let schedule = job.schedule.parse().unwrap();
 
-                let job_closure = self.job_to_closure(&job).unwrap();
+                let job_closure = self.job_to_closure(&job)?;
             
                 let scheduled_job_id = self.job_scheduler.add(Job::new(schedule, job_closure));
 
@@ -103,6 +104,8 @@ impl ServusJobScheduler {
                 });
             }
         }
+
+        Ok(())
     }
 
     pub fn tick(&mut self) {
@@ -185,6 +188,30 @@ fn write_log_entry(log_entry: LogEntry, conn: &PgConnection) {
     }
 }
 
+pub fn start_ssh_agent() -> Result<(), std::io::Error> {
+    use std::process::Command;
+
+    let res = Command::new("sh")
+            .args(&["-c", "eval `ssh-agent -s`"])
+            .output()?;
+
+    println!("{:?}", res);
+
+    let res = Command::new("sh")
+            .args(&["-c", "ssh-add"])
+            .output()?;
+
+    println!("{:?}", res);
+
+    let res = Command::new("sh")
+            .args(&["-c", "ssh-add -l"])
+            .output()?;
+
+    println!("{:?}", res);
+
+    Ok(())
+}
+
 /// Executes provided command on remote machine using ssh.
 /// Note that source machine has to have key-based access to target machine,
 /// ssh-agent has to be configured and imported identity specified by 'username' parameter.
@@ -197,6 +224,8 @@ fn write_log_entry(log_entry: LogEntry, conn: &PgConnection) {
 ///
 /// # list ssh identities:
 /// > ssh-add -l
+/// 
+/// This is performed by function `start_ssh_agent()`.
 pub fn exec_remote(username: &str, url: &str, port: i32, command: &str)
     -> Result<String, AnyError>
 {

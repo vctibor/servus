@@ -36,6 +36,16 @@ var servus = angular.module('servus', ['ngRoute'])
             });
     }
 
+    $scope.executeJob = function(id) {
+        console.log("Execute job");
+        $http.get("/api/exec/id")
+            .then(function() {
+                alert("Success.");
+            }, function() {
+                alert("Failure.");
+            });
+    }
+
     $scope.addJob = function() {
         let id = uuidv4();
         $scope.jobs.push({
