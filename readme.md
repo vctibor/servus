@@ -64,6 +64,9 @@ Environment="SERVUS_DATABASE_URL=postgres://<username>:<password>@<psql_server_i
 Environment="SERVUS_LISTEN_ON=<servus_ip>:<servus_port>"
 ```
 
+https://www.golinuxcloud.com/run-systemd-service-specific-user-group-linux/
+
+
 ## Tech stack
 
 - `Rust` programming language
