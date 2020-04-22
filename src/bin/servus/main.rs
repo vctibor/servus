@@ -33,7 +33,7 @@ async fn redirect_to_index() -> HttpResponse {
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     
-    servus::execution::start_ssh_agent()?;
+    // servus::execution::start_ssh_agent()?;
 
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();

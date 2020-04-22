@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=servus
+ExecStart=run_servus
 
 [Install]
 WantedBy=multi-user.target
