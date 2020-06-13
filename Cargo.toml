@@ -39,6 +39,5 @@ tokio = { version = "0.2", features = ["full"] }
 depends = "$auto"
 assets = [
     ["target/release/servus", "usr/bin/servus", "755"],
-    ["scripts/run_servus.sh", "usr/bin/run_servus", "755"],
     ["servus.service", "/lib/systemd/system/servus.service", "644"], 
 ]
