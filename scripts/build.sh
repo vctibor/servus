@@ -2,6 +2,8 @@
 
 echo "This script builds .deb package of Servus inside docker image rust_builder"
 
+echo "WARNING this builds code from git repository, not this folder ! ! !"
+
 rm servus.deb
 
 docker rm -f servus_builder
