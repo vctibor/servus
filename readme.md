@@ -26,6 +26,7 @@ To setup it you can follow [this guide](https://gist.github.com/mtigas/952344).
 
 NOTE: This doesn't seem to be supported at all on Android OS.
 
+
 ## SSH agent
 
 For successful job execution, user under which is `servus` running has to have key-based access to target machine and ssh-agent has to be configured and have imported identity specified by `username` column in `jobs` table entry.

@@ -18,9 +18,9 @@ use diesel_migrations::*;
 use actix_web::HttpResponse;
 use actix_http::http;
 
-
 embed_migrations!("migrations");
 
+// Include static files in binary.
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 
 /// Number of milliseconds to sleep between every job scheduler check.
@@ -34,6 +34,7 @@ async fn redirect_to_index() -> HttpResponse {
 async fn main() -> std::io::Result<()> {
 
     {
+        // perform check of identities in ssh agent
         use ssh2::Session;
 
         // Almost all APIs require a `Session` to be available
@@ -46,14 +47,8 @@ async fn main() -> std::io::Result<()> {
     
         for identity in agent.identities().unwrap() {
             println!("{}", identity.comment());
-            let pubkey = identity.blob();
         }
     }
-
-    
-    println!("hello world");
-
-    // servus::execution::start_ssh_agent()?;
 
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
@@ -79,7 +74,6 @@ async fn main() -> std::io::Result<()> {
 
     let daemon_pool = pool.clone();
 
-
     thread::spawn(|| {
         
         let mut job_scheduler = ServusJobScheduler::new(daemon_pool);
@@ -87,14 +81,15 @@ async fn main() -> std::io::Result<()> {
         println!("Started daemon.");
     
         loop {
-            
-            job_scheduler.schedule_jobs();
-    
+            let res = job_scheduler.schedule_jobs();
+            if res.is_err() {
+                println!("Failed to schedule jobs.");
+            }
+
             job_scheduler.tick();
     
             thread::sleep(Duration::from_millis(REFRESH_RATE));
         }
-
     });
 
     println!("Starting server at: {}", &bind);

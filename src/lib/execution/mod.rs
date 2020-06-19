@@ -57,7 +57,6 @@ impl ServusJobScheduler {
     */
 
     pub fn new(pool: DbPool) -> ServusJobScheduler {
-
         ServusJobScheduler {
             pool,
             job_scheduler: JobScheduler::new(),
@@ -69,7 +68,10 @@ impl ServusJobScheduler {
         let conn = self.pool.get()?;
         let jobs = get_jobs(&conn)?;
         for job in jobs {
-            self.schedule_job(&job);
+            let res = self.schedule_job(&job);
+            if res.is_err() {
+                println!("Failed to schedule job {}", job.name);
+            }
         }
         Ok(())
     }
@@ -188,6 +190,7 @@ fn write_log_entry(log_entry: LogEntry, conn: &PgConnection) {
     }
 }
 
+/*
 pub fn start_ssh_agent() -> Result<(), std::io::Error> {
     use std::process::Command;
 
@@ -211,6 +214,7 @@ pub fn start_ssh_agent() -> Result<(), std::io::Error> {
 
     Ok(())
 }
+*/
 
 /// Executes provided command on remote machine using ssh.
 /// Note that source machine has to have key-based access to target machine,

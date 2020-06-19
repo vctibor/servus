@@ -151,7 +151,7 @@ pub async fn execute(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
     let url = job.target.url.clone();
     let port = job.target.port;
     let command = job.code.clone();
-    let job_name = job.name.clone();
+    //let job_name = job.name.clone();
 
     let execution_res = exec_remote(&username, &url, port, &command);
 
