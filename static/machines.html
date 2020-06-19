@@ -1,36 +1,52 @@
 <div ng-app="myApp" ng-controller="MachinesController"></div>
     <h2>Machines</h2>
 
-    <button class="btn add_btn"><span class="fa fa-plus"></span> Add machine</button>
+    <button class="btn add_btn" ng-click="addMachine()">
+        <span class="fa fa-plus"></span> Add machine
+    </button>
 
-    <button class="btn refresh_btn"><span class="fa fa-repeat"></span> Refresh</button>
+    <button class="btn refresh_btn" ng-click="refresh()" ng-disabled="!hasChanged()">
+        <span class="fa fa-repeat"></span> Refresh
+    </button>
 
-    <button class="btn save_btn"><span class="fa fa-check"></span> Save changes</button>
+    <button class="btn save_btn" ng-click="updateMachines()" ng-disabled="!hasChanged()">
+        <span class="fa fa-check"></span> Save changes
+    </button>
 
     <hr/>
 
     <table>
         <tr>
+            <th></th>
+            <th></th>
             <th>Name</th>
             <th>Username</th>
             <th>Address</th>
             <th>Port</th>
-            <th></th>
         </tr>
         <tr ng-repeat="machine in machines" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
             <td>
-                <input ng-model="machine.name">
+                <button class="in_row_btn" title="Ping machine">
+                    <span class="fa fa-arrow-circle-right"></span>
+                </button>
             </td>
             <td>
-                <input ng-model="machine.username">
+                <button class="in_row_btn" ng-click="deleteMachine(machine.id)" title="Delete machine">
+                    <span class="fa fa-times"></span>
+                </button>
             </td>
             <td>
-                <input ng-model="machine.url">
+                <input ng-model="machine.name" class="table_input">
             </td>
             <td>
-                <input ng-model="machine.port">
+                <input ng-model="machine.username" class="table_input">
             </td>
-            <td><button class="fa fa-times delete_btn"></button></td>
+            <td>
+                <input ng-model="machine.url" class="table_input">
+            </td>
+            <td>
+                <input type="number" ng-model="machine.port" class="table_input">
+            </td>
         </tr>
     </table>
 

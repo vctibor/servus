@@ -1,1 +1,26 @@
 <h2>Log</h2>
+
+<button class="btn btn_log" title="Newer logs" disabled><span class="fa fa-angle-left"></span></button>
+
+<button class="btn btn_log" title="Older logs"><span class="fa fa-angle-right"></span></button>
+
+<hr/>
+
+<table>
+    <tr>
+        <th>Time</th>
+        <th>Job</th>
+        <th>Message</th>
+    </tr>
+    <tr ng-repeat="entry in log" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
+        <td>
+            {{ entry.time }}
+        </td>
+        <td>
+            {{ entry.job_name }}
+        </td>
+        <td>
+            {{ entry.message }}
+        </td>
+    </tr>
+</table>

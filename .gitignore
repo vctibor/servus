@@ -6,3 +6,9 @@ servus.bak2/target/**
 .idea/**
 
 .env
+
+create_data.sql
+debian
+**.deb
+
+Cargo.lock

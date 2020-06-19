@@ -1,16 +1,14 @@
-use servus::persistence::*;
-use servus::entity::Job as JobEntity;
+use crate::persistence::*;
+use crate::entity::Job as JobEntity;
+use crate::DbPool;
+use crate::execution::exec_remote;
 use uuid::Uuid;
 use actix_web::{web, Error, HttpResponse};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
-
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub async fn list_jobs(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    println!("List jobs.");
+    // println!("List jobs.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
@@ -24,7 +22,7 @@ pub async fn list_jobs(pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
 
-    println!("{:?}", jobs);
+    // println!("{:?}", jobs);
 
     Ok(HttpResponse::Ok().json(jobs))
 }
@@ -91,6 +89,25 @@ pub async fn update_job(job_id: web::Path<Uuid>,
     Ok(HttpResponse::Ok().finish())
 }
 
+pub async fn update_jobs(jobs: web::Json<Vec<JobEntity>>,
+                         pool: web::Data<DbPool>)
+                         -> Result<HttpResponse, Error>
+{
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || job::update_jobs(jobs.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
 pub async fn delete_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
                      -> Result<HttpResponse, Error>
 {
@@ -108,5 +125,37 @@ pub async fn delete_job(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
     
+    Ok(HttpResponse::Ok().finish())
+}
+
+
+pub async fn execute(job_uid: web::Path<Uuid>, pool: web::Data<DbPool>)
+                  -> Result<HttpResponse, Error>
+{
+    println!("Execute job {}", job_uid);
+
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+    
+    let job = web::block(move || job::get_job(job_uid.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?
+        .ok_or_else(|| HttpResponse::InternalServerError().finish())?;
+
+    let username = job.target.username.clone();
+    let url = job.target.url.clone();
+    let port = job.target.port;
+    let command = job.code.clone();
+    let job_name = job.name.clone();
+
+    let execution_res = exec_remote(&username, &url, port, &command);
+
+    println!("Execution result {:?}", execution_res);
+
     Ok(HttpResponse::Ok().finish())
 }

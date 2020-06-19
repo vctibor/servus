@@ -1,4 +1,4 @@
-var myApp = angular.module('myApp', ['ngRoute'])
+var servus = angular.module('servus', ['ngRoute'])
 
 .controller('MainController', function($scope, $route, $routeParams, $location) {
     $scope.$route = $route;
@@ -14,10 +14,108 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "jobs";
 
-    $http.get("/api/job/list")
-        .then(function (response) {
-            $scope.jobs = response.data;
+    $scope.jobs = [];
+    $scope.jobsOld = [];
+
+    $scope.refresh = function() {
+
+        $http.get("/api/job/list")
+            .then(function (response) {
+                $scope.jobs = response.data;
+                $scope.jobsOld = JSON.parse(JSON.stringify($scope.jobs));
+            });
+
+        $http.get("/api/user/list")
+            .then(function (response) {
+                $scope.users = response.data;
+            });
+
+        $http.get("/api/machine/list")
+            .then(function (response) {
+                $scope.machines = response.data;
+            });
+    }
+
+    $scope.executeJob = function(id) {
+        console.log("Execute job");
+        $http.get("/api/exec/id")
+            .then(function() {
+                alert("Success.");
+            }, function() {
+                alert("Failure.");
+            });
+    }
+
+    $scope.addJob = function() {
+        let id = uuidv4();
+        $scope.jobs.push({
+            "id": id,
+            "name": "New job",
+            "schedule": "* * * * *",
+            "code": "",
+            "send_email": false,
+            "last_status": false,
+            "target": {
+                "name": "",
+                "username": "",
+                "url": "",
+                "port": 22
+            },
+            "owner": {
+                "name": "",
+                "email": ""
+            }
         });
+        $scope.showModal = id;
+    }
+
+    $scope.deleteJob = function(id) {
+        $scope.jobs = $scope.jobs.filter(function(job) {
+            return job.id !== id;
+        });
+    }
+
+    $scope.updateJobs = function() {
+        let data = JSON.stringify($scope.jobs);
+        $http.post("/api/job/bulk_update", data)
+            .then(function() {
+                $scope.refresh();
+            }, function() {
+                // failure
+            });
+    }
+    
+    $scope.hasChanged = function() {
+        let newJobs = $scope.jobs;
+        let newJobsLen = newJobs.length; 
+        let oldJobs = $scope.jobsOld;
+        let oldJobsLen = oldJobs.length;
+
+        if (newJobsLen !== oldJobsLen) {
+            return true;
+        }
+
+        for (var ix = 0; ix < newJobsLen; ix++) {
+            let newJob = newJobs[ix];
+            let oldJob = oldJobs[ix];
+
+            if (newJob.id !== oldJob.id ||
+                newJob.name !== oldJob.name ||
+                newJob.description !== oldJob.description ||
+                newJob.schedule !== oldJob.schedule ||
+                newJob.target.id !== oldJob.target.id ||
+                newJob.owner.id !== oldJob.owner.id ||
+                newJob.send_email !== oldJob.send_email ||
+                newJob.code !== oldJob.code)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    $scope.refresh();
 })
 
 .controller('MachinesController', function($scope, $routeParams, $http) {
@@ -28,47 +126,69 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "machines";
 
-    $scope.machines = null;
-    $scope.serialized = JSON.stringify($scope.machines, null, 2);
+    $scope.machines = [];
+    $scope.machinesOld = [];
 
-    $http.get("/api/machine/list")
-        .then(function (response) {
-            $scope.machines = response.data;
+    $scope.refresh = function() {
+        $http.get("/api/machine/list")
+            .then(function (response) {
+                $scope.machines = response.data;
+                $scope.machinesOld = JSON.parse(JSON.stringify($scope.machines));
+            });
+    }
+
+    $scope.addMachine = function() {
+        $scope.machines.push({
+            "id": uuidv4(),
+            "name": "New machine"
         });
+    }
 
+    $scope.deleteMachine = function(id) {
+        $scope.machines = $scope.machines.filter(function(machine) {
+            return machine.id !== id;
+        });
+    }
 
+    $scope.updateMachines = function() {
+        let data = JSON.stringify($scope.machines);
+        console.log(data);
+        $http.post("/api/machine/bulk_update", data)
+            .then(function() {
+                $scope.refresh();
+            }, function() {
+                // failure
+            });
+    }
+
+    $scope.hasChanged = function() {
+        let newMachines = $scope.machines;
+        let newMachinesLen = newMachines.length; 
+        let oldMachines = $scope.machinesOld;
+        let oldMachinesLen = oldMachines.length;
     
-    // Get the modal
-    var modal = document.getElementById("myModal");
-
-    // Get the button that opens the modal
-    var btn = document.getElementById("myBtn");
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
-
-    // When the user clicks on the button, open the modal
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
-
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (newMachinesLen !== oldMachinesLen) {
+            return true;
         }
+    
+        for (var ix = 0; ix < newMachinesLen; ix++) {
+            let newMachine = newMachines[ix];
+            let oldMachine = oldMachines[ix];
+    
+            if (newMachine.id !== oldMachine.id ||
+                newMachine.name !== oldMachine.name ||
+                newMachine.username !== oldMachine.username ||
+                newMachine.url !== oldMachine.url ||
+                newMachine.port !== oldMachine.port)
+            {
+                return true;
+            }
+        }
+    
+        return false;
     }
 
-
-    var btnClick = function() {
-        alert("test");
-    }
-
+    $scope.refresh();
 })
 
 .controller('UsersController', function($scope, $routeParams, $http) {
@@ -79,10 +199,67 @@ var myApp = angular.module('myApp', ['ngRoute'])
 
     $scope.active_page = "users";
 
-    $http.get("/api/user/list")
-        .then(function (response) {
-            $scope.users = response.data;
+    $scope.users = [];
+    $scope.usersOld = [];
+
+    $scope.refresh = function() {
+        $http.get("/api/user/list")
+            .then(function (response) {
+                $scope.users = response.data;
+                $scope.usersOld = JSON.parse(JSON.stringify($scope.users));
+            });
+    }
+
+    $scope.addUser = function() {
+        $scope.users.push({
+            "id": uuidv4(),
+            "name": "New user",
+            "email": ""
         });
+    }
+
+    $scope.deleteUser = function(id) {
+        $scope.users = $scope.users.filter(function(user) {
+            return user.id !== id;
+        });
+    }
+
+    $scope.updateUsers = function() {
+        let data = JSON.stringify($scope.users);
+        $http.post("/api/user/bulk_update", data)
+            .then(function() {
+                $scope.refresh();
+            }, function() {
+                // failure
+            });
+    }
+
+    $scope.hasChanged = function() {
+        let newUsers = $scope.users;
+        let newUsersLen = newUsers.length; 
+        let oldUsers = $scope.usersOld;
+        let oldUsersLen = oldUsers.length;
+    
+        if (newUsersLen !== oldUsersLen) {
+            return true;
+        }
+    
+        for (var ix = 0; ix < newUsersLen; ix++) {
+            let newUser = newUsers[ix];
+            let oldUser = oldUsers[ix];
+    
+            if (newUser.id !== oldUser.id ||
+                newUser.name !== oldUser.name ||
+                newUser.email !== oldUser.email)
+            {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+
+    $scope.refresh();
 })
 
 .controller('LogController', function($scope, $routeParams, $http) {
@@ -92,6 +269,11 @@ var myApp = angular.module('myApp', ['ngRoute'])
     $scope.params = $routeParams;
 
     $scope.active_page = "log";
+
+    $http.get("/api/log/0/20")
+        .then(function (response) {
+            $scope.log = response.data;
+        });
 })
 
 .config(function($routeProvider, $locationProvider) {

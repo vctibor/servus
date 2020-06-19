@@ -1,16 +1,13 @@
-use servus::persistence::*;
-use servus::entity::Machine as MachineEntity;
+use crate::persistence::*;
+use crate::entity::Machine as MachineEntity;
+use crate::DbPool;
 use uuid::Uuid;
 use actix_web::{web, Error, HttpResponse};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
-
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub async fn list_machines(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    println!("List machines.");
+    // println!("List machines.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
@@ -24,7 +21,7 @@ pub async fn list_machines(pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
 
-    println!("{:?}", machines);
+    // println!("{:?}", machines);
 
     Ok(HttpResponse::Ok().json(machines))
 }
@@ -82,6 +79,25 @@ pub async fn update_machine(machine_id: web::Path<Uuid>,
 
     web::block(move || machine::update_machine(machine.into_inner(),
                             machine_id.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+pub async fn update_machines(machines: web::Json<Vec<MachineEntity>>,
+                             pool: web::Data<DbPool>)
+                             -> Result<HttpResponse, Error>
+{
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || machine::update_machines(machines.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);

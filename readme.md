@@ -7,11 +7,13 @@ Think about this like `cron` with WebUI.
 
 ## (Intended) Features:
 
-- Execute commands on remote machines, in scheduled intervals, using `ssh`.
+- Execute commands on remote machines, in scheduled intervals, using `ssh`. ✓
 
-- Log of executed jobs and their exit status.
+- Log of executed jobs and their exit status. ✓
 
 - Sending emails in case of failure.
+
+- Button to run job immediately.
 
 
 ## Authentication
@@ -21,6 +23,8 @@ Application server does not implement any user authentication.
 It is intended to be deployed behind `nginx` reverse-proxy with client-side authentication configured and required.
 
 To setup it you can follow [this guide](https://gist.github.com/mtigas/952344).
+
+NOTE: This doesn't seem to be supported at all on Android OS.
 
 ## SSH agent
 
@@ -37,17 +41,31 @@ ssh-add
 ssh-add -l
 ```
 
+
 ## Deployment
 
-`servus` consists of two separate processes:
+We use `cargo-deb` to create .deb package (script `build.sh`). This package can be used to install Servus on Debian-derived systems.
 
-### client
+You have to set two environment variables:
 
-Implements web interface.
+`SERVUS_DATABASE_URL` should contain connection string to PostgreSQL database.
 
-### daemon
+`SERVUS_LISTEN_ON` should contain IP address and port on which should Servus web interface listen.
 
-This process is responsible for actual execution of scheduled jobs.
+Servus is intended to be run as `systemd` service. If that's the case we have to set environment variables in file
+
+`/etc/systemd/system/servus.service.d/local.conf`
+
+like this:
+
+```
+[Service]
+Environment="SERVUS_DATABASE_URL=postgres://<username>:<password>@<psql_server_ip>/<database_name>"
+Environment="SERVUS_LISTEN_ON=<servus_ip>:<servus_port>"
+```
+
+https://www.golinuxcloud.com/run-systemd-service-specific-user-group-linux/
+
 
 ## Tech stack
 
@@ -62,6 +80,7 @@ This process is responsible for actual execution of scheduled jobs.
 - `AngularJS` frontend
 
 - `Nginx` reverse proxy
+
 
 ## License
 

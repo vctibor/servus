@@ -1,16 +1,13 @@
-use servus::persistence::*;
-use servus::entity::User as UserEntity;
+use crate::persistence::*;
+use crate::entity::User as UserEntity;
 use uuid::Uuid;
 use actix_web::{web, Error, HttpResponse};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{self, ConnectionManager};
-
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+use crate::DbPool;
 
 pub async fn list_users(pool: web::Data<DbPool>)
                     -> Result<HttpResponse, Error>
 {
-    println!("List users.");
+    // println!("List users.");
 
     let conn = pool.get().map_err(|e| {
         eprintln!("{}", e);
@@ -24,7 +21,7 @@ pub async fn list_users(pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
 
-    println!("{:?}", users);
+    // println!("{:?}", users);
 
     Ok(HttpResponse::Ok().json(users))
 }
@@ -82,6 +79,26 @@ pub async fn update_user(user_id: web::Path<Uuid>,
 
     web::block(move || user::update_user(user.into_inner(),
                             user_id.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+
+pub async fn update_users(users: web::Json<Vec<UserEntity>>,
+                          pool: web::Data<DbPool>)
+                          -> Result<HttpResponse, Error>
+{
+    let conn = pool.get().map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    })?;
+
+    web::block(move || user::update_users(users.into_inner(), &conn))
         .await
         .map_err(|e| {
             eprintln!("{}", e);

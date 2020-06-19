@@ -32,6 +32,10 @@ h1, h2 {
     margin-bottom: 0px;
 }
 
+h3 {
+    text-align: left;
+}
+
 ul {
     list-style-type: none;
     margin: 0;
@@ -51,13 +55,15 @@ table {
 }
 
 td {
-    min-width: 10em;
     text-align: center;
-
     border-width: 0px;
 }
 
-input {
+.basic_td {
+    min-width: 10em;
+}
+
+.table_input {
     background-color: transparent;
     border-style: none;
     text-align: center;
@@ -68,6 +74,7 @@ input {
     font-family: "Lucida Console", Monaco, monospace;
     font-variant: small-caps;
 }
+
 
 .table_row:hover {
     background-color: #eee;
@@ -97,6 +104,50 @@ input {
     cursor: pointer;
 }
 
+.btn:disabled {
+    background-color: #888;
+    cursor: default;
+}
+
+.btn_log {
+    background-color: #46e041;
+    font-size: 22px;
+    width: 50px;
+    height: 30px;
+}
+
+.jobs_select {
+    background-color: transparent;
+    border-style: none;
+    font-variant: small-caps;
+    text-align: center;
+}
+
+/* Arrow after select */
+.job_select-select select {
+    -moz-appearance:none; /* Firefox */
+    -webkit-appearance:none; /* Safari and Chrome */
+    appearance:none;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: transparent;
+}
+
 .add_btn {
     background-color: #46e041;
 }
@@ -109,8 +160,8 @@ input {
     background-color: #ffcc00;
 }
 
-.delete_btn {
-    color: red;
+.in_row_btn {
+    color: black;
     border-style: none;
     background-color: transparent;
     cursor: pointer;
@@ -136,23 +187,11 @@ a:active {
     color: white;
 }
 
-/*
-hr {
-    border: 0;
-    border-bottom: 1px dashed #ccc;
-    background: #999;
-
-    margin-top: 3em;
-    margin-bottom: 3em;
-}
-*/
-
 hr {
     border: 0;
     color: transparent;
 
-    margin-top: 1em;
-    margin-bottom: 1em;
+    height: 1em;
 }
 
 :focus {

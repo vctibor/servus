@@ -1,15 +1,25 @@
 <h2>Jobs</h2>
 
-<button class="btn add_btn"><span class="fa fa-plus"></span> Add job</button>
+<button class="btn add_btn" ng-click="addJob()">
+    <span class="fa fa-plus"></span> Add job
+</button>
 
-<button class="btn refresh_btn"><span class="fa fa-repeat"></span> Refresh</button>
+<button class="btn refresh_btn" ng-click="refresh()" ng-disabled="!hasChanged()">
+    <span class="fa fa-repeat"></span> Refresh
+</button>
 
-<button class="btn save_btn"><span class="fa fa-check"></span> Save changes</button>
+<button class="btn save_btn" ng-click="updateJobs()" ng-disabled="!hasChanged()">
+    <span class="fa fa-check"></span> Save changes
+</button>
 
 <hr/>
 
 <table>
     <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
         <th>Name</th>
         <th>Schedule</th>
         <th>Target</th>
@@ -19,51 +29,134 @@
     </tr>
     <tr ng-repeat="job in jobs" ng-class="'table_row'" ng-class-odd="'table_row_odd'">
         <td>
-            <input ng-model="job.name">
-        </td>
-        <td>
-            <input ng-model="job.schedule">
-        </td>
-        <td>
-            <input ng-model="job.target.name">
-        </td>
-        <td>
-            <input ng-model="job.owner.name">
-        </td>
-        <td>
-            <!-- <input type="checkbox" ng-model="job.send_email"> -->
-
-            <!--
-            <div class="checkbox">
-                <input type="checkbox" value="1" id="checkboxOneInput" ng-model="job.send_email"/>
-                <label for="checkboxOneInput"></label>
+            <!-- Last status icon. -->
+            <div ng-switch on="job.last_status" class="last_status_icon" title="Last status">
+                <span class="fa fa-check-circle-o" ng-switch-when="true"></span>
+                <span class="fa fa-exclamation-triangle" ng-switch-when="false"></span>
+                <!-- We should default show no icon when job wasn't executed ever. -->
             </div>
-            -->
+        </td>
 
+        <td>
+            <!-- Job detail button. -->
+            <button class="in_row_btn job_detail_btn" ng-click="showModal = job.id" title="Job detail">
+                <span class="fa fa-search"></span>
+            </button>
+        </td>
+
+        <td>
+            <!-- Execute now button. -->
+            <button class="in_row_btn execute_now_btn" title="Execute now" ng-click="executeJob(job.id)">
+                <span class="fa fa-play"></span>
+            </button>
+        </td>
+
+        <td>
+            <!-- Button to delete job. -->
+            <button class="in_row_btn delete_job_btn" title="Delete job" ng-click="deleteJob(job.id)">
+                <span class="fa fa-times"></span>
+            </button>
+        </td>
+
+        <td>
+            <input class="table_input" ng-model="job.name">
+        </td>
+        <td>
+            <input class="table_input" ng-model="job.schedule">
+        </td>
+        <td>
+            <select ng-model="job.target.id" class="jobs_select">
+                <option ng-repeat="machine in machines" value="{{machine.id}}">{{machine.name}}</option>
+            </select>
+        </td>
+        <td>
+            <select ng-model="job.owner.id" class="jobs_select">
+                <option ng-repeat="user in users" value="{{user.id}}">{{user.name}}</option>
+            </select>
+        </td>
+        <td class="basic_td">
             <label class="main">
                 <input type="checkbox" ng-model="job.send_email">
                 <span class="w3docs"></span>
             </label>
         </td>
-        <td><button class="fa fa-times delete_btn"></button></td>
+
+        <td>
+            <div id="job.id" class="modal" ng-show="showModal == job.id">
+                <div class="modal-content">
+                    <span class="close" ng-click="showModal = ''">&times;</span>
+                    
+                    <input class="detail_input detail_input_header" ng-model="job.name">
+
+                    <div class="job_id">{{ job.id }}</div>
+
+                    <h3 class="modal_text">Description</h3>
+                    
+                    <input class="detail_input detail_input_description" ng-model="job.description">
+
+                    <!--
+                    <h3 class="modal_text">Target</h3>
+
+                    <select ng-model="job.target.id" class="jobs_select">
+                        <option ng-repeat="machine in machines" value="{{machine.id}}">{{machine.name}}</option>
+                    </select>
+
+                    <h3 class="modal_text">Owner</h3>
+
+                    <select ng-model="job.owner.id" class="jobs_select">
+                        <option ng-repeat="user in users" value="{{user.id}}">{{user.name}}</option>
+                    </select>
+
+                    <h3 class="modal_text">Send email</h3>
+                    -->
+                    
+                    <h3 class="modal_text">Schedule</h3>
+                    
+                    <input class="detail_input detail_input_schedule" ng-model="job.schedule">
+                    
+                    <h3 class="modal_text">Code</h3>
+
+                    <div class="detail_code_wrapper">
+                        <textarea spellcheck="false" class="detail_input_code" ng-model="job.code">
+                    </div>
+                </div>
+            </div>
+        </td>
+
     </tr>
 </table>
+
+
+
+<!--
+<hr/>
+<div>
+    Diff: {{ changed() }}
+</div>
 
 <div style="max-width: 50vw;">
     {{ jobs }}
 </div>
 
-<button id="myBtn" onlclick="btnClick">Open Modal</button>
+<hr/>
 
-<!-- The Modal -->
-<div id="myModal" class="modal">
+<div style="max-width: 50vw;">
+    {{ jobsOld }}
+</div>
+-->
+<!--
+<hr/>
 
-    <!-- Modal content -->
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <p>Some text in the Modal..</p>
-    </div>
-  
+<div style="max-width: 50vw;">
+    {{ users }}
 </div>
 
 <hr/>
+
+<div style="max-width: 50vw;">
+    {{ machines }}
+</div>
+-->
+
+<hr/>
+

@@ -44,5 +44,5 @@ create table tx_log (
     success boolean not null,
     time timestamp not null,
     message text not null,
-    job uuid not null references jobs(id)      -- Pointer into 'jobs' table.
+    job uuid not null       -- No FK so we can retain logs realted to deleted jobs.
 );

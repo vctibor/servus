@@ -1,3 +1,6 @@
+pub mod error;
+pub use error::*;
+
 use uuid::Uuid;
 use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
@@ -27,44 +30,20 @@ pub struct Job {
     pub schedule: String,
     pub target: Machine,
     pub owner: User,
-    pub last_update: NaiveDateTime,
-    pub send_email: bool
+    pub last_update: Option<NaiveDateTime>,
+    pub send_email: bool,
+    pub last_status: Option<bool>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TxLog {
     pub id: Option<Uuid>,
+    pub stdout: Option<String>,
+    pub stderr: Option<String>,
     pub success: bool,
     pub time: NaiveDateTime,
-    pub message: String
-}
-
-use std::error::Error;
-
-pub type AnyError = Box<dyn Error + Send + Sync>;
-
-use std::fmt;
-
-#[derive(Debug)]
-pub struct ServusError {
-    details: String
-}
-
-impl ServusError {
-    pub fn new(msg: &str) -> ServusError {
-        ServusError{details: msg.to_string()}
-    }
-}
-
-impl fmt::Display for ServusError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"{}",self.details)
-    }
-}
-
-impl Error for ServusError {
-    fn description(&self) -> &str {
-        &self.details
-    }
+    pub message: String,
+    pub job: Uuid,
+    pub job_name: Option<String>
 }
 
