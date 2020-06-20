@@ -1,3 +1,4 @@
+/*
 #![warn(
      clippy::all,
      clippy::restriction,
@@ -5,6 +6,7 @@
      clippy::nursery,
      clippy::cargo,
  )]
+*/
 
 #[macro_use] extern crate diesel;
 

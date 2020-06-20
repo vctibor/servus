@@ -5,7 +5,7 @@ use crate::entity::{AnyError, ServusError};
 use crate::entity::Job as JobEntity;
 use crate::entity::TxLog as LogEntry;
 use crate::persistence::log::write_log;
-use crate::persistence::get_jobs;
+use crate::persistence::{get_jobs, get_job};
 use crate::DbPool;
 use std::io::prelude::*;
 use std::net::TcpStream;
@@ -22,7 +22,6 @@ struct ScheduledJob {
     last_update: NaiveDateTime
 }
 
-
 pub struct ServusJobScheduler {
 
     pool: DbPool,
@@ -35,27 +34,6 @@ pub struct ServusJobScheduler {
 
 impl ServusJobScheduler {
 
-    /*
-    pub fn new() -> ServusJobScheduler {
-
-        dotenv().ok();
-
-        let database_url = env::var("DATABASE_URL").expect("Failed to read env var DATABASE_URL.");
-    
-        let manager = ConnectionManager::<PgConnection>::new(database_url);
-    
-        let pool = r2d2::Pool::builder()
-            .build(manager)
-            .expect("Failed to create pool.");
-
-        ServusJobScheduler {
-            pool,
-            job_scheduler: JobScheduler::new(),
-            scheduled_jobs: HashMap::new()
-        }
-    }
-    */
-
     pub fn new(pool: DbPool) -> ServusJobScheduler {
         ServusJobScheduler {
             pool,
@@ -66,13 +44,58 @@ impl ServusJobScheduler {
 
     pub fn schedule_jobs(&mut self) -> Result<(), AnyError> {
         let conn = self.pool.get()?;
-        let jobs = get_jobs(&conn)?;
-        for job in jobs {
+        
+        // list of jobs defined in database
+        let jobs: Vec<JobEntity> = get_jobs(&conn)?;
+        
+        let mut to_remove = vec!();
+        for scheduled_job in &self.scheduled_jobs {
+            if get_job(scheduled_job.0.clone(), &conn)?.is_none() {
+                println!("Should remove job");
+                to_remove.push(scheduled_job.0.clone());
+            }
+        }
+
+        for job_to_remove in to_remove {
+            let id = self.scheduled_jobs.get(&job_to_remove).unwrap().scheduled_job_id;
+            if self.job_scheduler.remove(id) { 
+                self.scheduled_jobs.remove_entry(&job_to_remove);
+                println!("Removed job ID {}", &job_to_remove);
+            } else {
+                println!("Failed to remove job ID {}", &job_to_remove);
+            }
+        }
+
+        /*
+        let mut to_remove: Vec<Uuid> = vec!();
+
+        for scheduled_job in &self.scheduled_jobs {
+            let mut remove = true;
+            for job in &jobs {
+                if job.id.unwrap() == *scheduled_job.0 {
+                    remove = false;
+                }
+            }
+
+            if remove {
+                to_remove.push(*scheduled_job.0);
+            }
+        }
+
+        for job_to_remove in to_remove {
+            println!("Removed job ID {}", &job_to_remove);
+            self.scheduled_jobs.remove_entry(&job_to_remove);
+            self.job_scheduler.remove(job_to_remove);
+        }
+        */
+
+        for job in jobs {            
             let res = self.schedule_job(&job);
             if res.is_err() {
                 println!("Failed to schedule job {}", job.name);
             }
         }
+
         Ok(())
     }
 
@@ -151,71 +174,6 @@ impl ServusJobScheduler {
     }
 }
 
-fn write_log_success(stdout: &str, msg: &str, job_id: Uuid, conn: &PgConnection) {
-    let entry = LogEntry {
-        id: None,
-        stdout: Some(stdout.to_owned()),
-        stderr: None,
-        success: true,
-        time: Local::now().naive_local(),
-        message: msg.to_owned(),
-        job: job_id,
-        job_name: None
-    };
-
-    write_log_entry(entry, &conn);
-}
-
-fn write_log_err(stderr: &str, msg: &str, job_id: Uuid, conn: &PgConnection) {
-    let entry = LogEntry {
-        id: None,
-        stdout: None,
-        stderr: Some(stderr.to_owned()),
-        success: false,
-        time: Local::now().naive_local(),
-        message: msg.to_owned(),
-        job: job_id,
-        job_name: None
-    };
-
-    write_log_entry(entry, &conn);
-}
-
-fn write_log_entry(log_entry: LogEntry, conn: &PgConnection) {
-    
-    let write_result = write_log(log_entry, &conn);
-
-    if write_result.is_err() {
-        println!("Failed to write to log.");
-    }
-}
-
-/*
-pub fn start_ssh_agent() -> Result<(), std::io::Error> {
-    use std::process::Command;
-
-    let res = Command::new("sh")
-            .args(&["-c", "eval `ssh-agent -s`"])
-            .output()?;
-
-    println!("{:?}", res);
-
-    let res = Command::new("sh")
-            .args(&["-c", "ssh-add"])
-            .output()?;
-
-    println!("{:?}", res);
-
-    let res = Command::new("sh")
-            .args(&["-c", "ssh-add -l"])
-            .output()?;
-
-    println!("{:?}", res);
-
-    Ok(())
-}
-*/
-
 /// Executes provided command on remote machine using ssh.
 /// Note that source machine has to have key-based access to target machine,
 /// ssh-agent has to be configured and imported identity specified by 'username' parameter.
@@ -254,8 +212,6 @@ pub fn exec_remote(username: &str, url: &str, port: i32, command: &str)
     Ok(output)
 }
 
-
-
 /// Checks if job was already scheduled and compares update dates.
 /// Returns 'true' if job SHOULD be scheduled.
 /// Returns scheduled job ID, if job was scheduled, but definition was updated,
@@ -276,4 +232,43 @@ fn should_schedule_job(job: &JobEntity, scheduled_jobs: &HashMap<Uuid, Scheduled
     }
 
     (true, None)
+}
+
+fn write_log_success(stdout: &str, msg: &str, job_id: Uuid, conn: &PgConnection) {
+    let entry = LogEntry {
+        id: None,
+        stdout: Some(stdout.to_owned()),
+        stderr: None,
+        success: true,
+        time: Local::now().naive_local(),
+        message: msg.to_owned(),
+        job: job_id,
+        job_name: None
+    };
+
+    write_log_entry(entry, &conn);
+}
+
+fn write_log_err(stderr: &str, msg: &str, job_id: Uuid, conn: &PgConnection) {
+    let entry = LogEntry {
+        id: None,
+        stdout: None,
+        stderr: Some(stderr.to_owned()),
+        success: false,
+        time: Local::now().naive_local(),
+        message: msg.to_owned(),
+        job: job_id,
+        job_name: None
+    };
+
+    write_log_entry(entry, &conn);
+}
+
+fn write_log_entry(log_entry: LogEntry, conn: &PgConnection) {
+    
+    let write_result = write_log(log_entry, &conn);
+
+    if write_result.is_err() {
+        println!("Failed to write to log.");
+    }
 }

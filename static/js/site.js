@@ -51,7 +51,7 @@ var servus = angular.module('servus', ['ngRoute'])
         $scope.jobs.push({
             "id": id,
             "name": "New job",
-            "schedule": "* * * * *",
+            "schedule": "* * * * * *",
             "code": "",
             "send_email": false,
             "last_status": false,

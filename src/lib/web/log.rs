@@ -35,7 +35,7 @@ pub async fn get_log_entries(req: HttpRequest, pool: web::Data<DbPool>)
             HttpResponse::InternalServerError().finish()
         })?;
 
-    println!("{:?}", log_entries);
+    // println!("{:?}", log_entries);
 
     Ok(HttpResponse::Ok().json(log_entries))
 }

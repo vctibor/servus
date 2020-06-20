@@ -100,7 +100,7 @@ async fn main() -> std::io::Result<()> {
         let generated = generate();
 
         App::new()
-            .wrap(middleware::Logger::default())
+            //.wrap(middleware::Logger::default())
             .wrap(middleware::NormalizePath)
             .data(pool.clone())
             .service(
