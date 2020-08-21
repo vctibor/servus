@@ -8,7 +8,7 @@ rm servus.deb
 
 docker rm -f servus_builder
 
-docker run -di --name servus_builder --rm rust_builder bash
+docker run -di --name servus_builder --rm vladimirmalky/rust_builder bash
 
 docker exec servus_builder sh -c "git clone https://github.com/vctibor/servus"
 
